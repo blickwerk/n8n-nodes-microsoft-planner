@@ -1,6 +1,7 @@
 import {
 	IDataObject,
 	IExecuteFunctions,
+	ILoadOptionsFunctions,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
@@ -55,6 +56,69 @@ export class MicrosoftPlanner implements INodeType {
 			...taskOperations,
 			...taskFields,
 		],
+	};
+
+	methods = {
+		loadOptions: {
+			async getPlans(this: ILoadOptionsFunctions) {
+				const plans = await microsoftApiRequestAllItems.call(
+					this,
+					'value',
+					'GET',
+					'/me/planner/plans',
+				);
+
+				return plans.map((plan: any) => ({
+					name: plan.title,
+					value: plan.id,
+				}));
+			},
+
+			async getBuckets(this: ILoadOptionsFunctions) {
+				const planId = this.getNodeParameter('planId', 0) as string;
+				if (!planId) {
+					return [];
+				}
+
+				const buckets = await microsoftApiRequestAllItems.call(
+					this,
+					'value',
+					'GET',
+					`/planner/plans/${planId}/buckets`,
+				);
+
+				return buckets.map((bucket: any) => ({
+					name: bucket.name,
+					value: bucket.id,
+				}));
+			},
+
+			async getTasks(this: ILoadOptionsFunctions) {
+				const planId = this.getNodeParameter('planId', 0) as string;
+				const bucketId = this.getNodeParameter('bucketId', 0) as string;
+
+				let endpoint = '';
+				if (bucketId) {
+					endpoint = `/planner/buckets/${bucketId}/tasks`;
+				} else if (planId) {
+					endpoint = `/planner/plans/${planId}/tasks`;
+				} else {
+					return [];
+				}
+
+				const tasks = await microsoftApiRequestAllItems.call(
+					this,
+					'value',
+					'GET',
+					endpoint,
+				);
+
+				return tasks.map((task: any) => ({
+					name: task.title,
+					value: task.id,
+				}));
+			},
+		},
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {

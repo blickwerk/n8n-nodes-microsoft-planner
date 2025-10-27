@@ -84,6 +84,13 @@ Configure the Microsoft Planner OAuth2 API credentials in n8n:
 4. Click **Connect my account**
 5. Complete the OAuth flow
 
+## Features
+
+- **Dynamic Dropdowns**: Automatically loads and displays your Plans, Buckets, and Tasks - no need to manually copy IDs!
+- **User Assignment**: Assign tasks to users by email address
+- **Priority Management**: Easy-to-use priority dropdown (Urgent, Important, Medium, Low)
+- **Full CRUD Operations**: Create, Read, Update, and Delete tasks
+
 ## Operations
 
 ### Task
@@ -98,10 +105,10 @@ Configure the Microsoft Planner OAuth2 API credentials in n8n:
 
 ### Creating a Task
 
-To create a task, you need:
-- **Plan ID**: The ID of the plan
-- **Bucket ID**: The ID of the bucket within the plan
-- **Title**: The task title
+To create a task:
+1. Select a **Plan** from the dropdown (automatically loaded from your Microsoft 365)
+2. Select a **Bucket** from the dropdown (loads buckets from the selected plan)
+3. Enter the **Title** of the task
 
 Optional fields:
 - **Description**: Detailed task description
@@ -117,14 +124,19 @@ Optional fields:
 
 ### Getting Tasks
 
-You can retrieve tasks by:
-- **Task ID**: Get a specific task
-- **Plan ID**: Get all tasks in a plan
-- **Bucket ID**: Get all tasks in a bucket
+**Get a single task:**
+- Select the task from the dropdown (automatically loaded from your plans)
+
+**Get many tasks:**
+- Filter by **Plan** (select from dropdown)
+- Or filter by **Bucket** (select from dropdown)
+- Set a limit or return all tasks
 
 ### Updating a Task
 
-To update a task, provide the Task ID and the fields you want to update. You can update:
+To update a task:
+1. Select the **Task** from the dropdown
+2. Update any of these fields:
 - Title
 - Description
 - Priority (via dropdown)
@@ -134,15 +146,14 @@ To update a task, provide the Task ID and the fields you want to update. You can
 - Percent Complete
 - Move to different bucket
 
-### Finding Plan and Bucket IDs
+### How Dynamic Dropdowns Work
 
-You can find Plan IDs and Bucket IDs using the Microsoft Graph Explorer:
+The node automatically fetches your data from Microsoft 365:
+- **Plans**: Loaded from your account when you open the Plan dropdown
+- **Buckets**: Dynamically loaded based on the selected Plan
+- **Tasks**: Loaded from the selected Plan or Bucket
 
-1. Go to [Microsoft Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
-2. Sign in with your Microsoft account
-3. Use these queries:
-   - Get all plans: `GET https://graph.microsoft.com/v1.0/me/planner/plans`
-   - Get buckets in a plan: `GET https://graph.microsoft.com/v1.0/planner/plans/{plan-id}/buckets`
+No need to manually look up IDs anymore! Just select from the dropdown menus.
 
 ## Compatibility
 
@@ -155,6 +166,14 @@ Tested with n8n version 1.0.0 and above.
 - [Microsoft Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
 
 ## Version History
+
+### 1.2.0
+- **Major UX Improvement**: Added dynamic dropdowns for Plans, Buckets, and Tasks
+- No more manual ID lookup - select from dropdown menus
+- Plans load automatically from your Microsoft 365 account
+- Buckets load dynamically based on selected Plan
+- Tasks load from selected Plan or Bucket
+- Improved user experience with clearer field labels
 
 ### 1.1.1
 - Fixed startDateTime not being set (was returning null)

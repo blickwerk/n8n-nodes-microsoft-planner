@@ -52,9 +52,12 @@ export const taskFields: INodeProperties[] = [
 	//         task:create
 	// ----------------------------------
 	{
-		displayName: 'Plan ID',
+		displayName: 'Plan',
 		name: 'planId',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getPlans',
+		},
 		required: true,
 		displayOptions: {
 			show: {
@@ -63,12 +66,15 @@ export const taskFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the plan to which the task belongs',
+		description: 'The plan to which the task belongs',
 	},
 	{
-		displayName: 'Bucket ID',
+		displayName: 'Bucket',
 		name: 'bucketId',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getBuckets',
+		},
 		required: true,
 		displayOptions: {
 			show: {
@@ -77,7 +83,7 @@ export const taskFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the bucket to which the task belongs',
+		description: 'The bucket to which the task belongs',
 	},
 	{
 		displayName: 'Title',
@@ -177,9 +183,12 @@ export const taskFields: INodeProperties[] = [
 	//         task:get
 	// ----------------------------------
 	{
-		displayName: 'Task ID',
+		displayName: 'Task',
 		name: 'taskId',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getTasks',
+		},
 		required: true,
 		displayOptions: {
 			show: {
@@ -188,7 +197,7 @@ export const taskFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the task',
+		description: 'The task to operate on',
 	},
 	{
 		displayName: 'Additional Fields',
@@ -261,18 +270,24 @@ export const taskFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				displayName: 'Plan ID',
+				displayName: 'Plan',
 				name: 'planId',
-				type: 'string',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getPlans',
+				},
 				default: '',
-				description: 'Filter tasks by plan ID',
+				description: 'Filter tasks by plan',
 			},
 			{
-				displayName: 'Bucket ID',
+				displayName: 'Bucket',
 				name: 'bucketId',
-				type: 'string',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getBuckets',
+				},
 				default: '',
-				description: 'Filter tasks by bucket ID',
+				description: 'Filter tasks by bucket',
 			},
 		],
 	},
