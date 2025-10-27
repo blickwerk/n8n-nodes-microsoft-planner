@@ -62,20 +62,7 @@ export class MicrosoftPlanner implements INodeType {
 		listSearch: {
 			async getBuckets(this: ILoadOptionsFunctions) {
 				try {
-					// Try to get planId from main parameter or from filters collection
-					let planId = '';
-					try {
-						planId = this.getNodeParameter('planId', 0) as string;
-					} catch (error) {
-						// If not found in main parameters, try filters
-						try {
-							const filters = this.getNodeParameter('filters', 0) as IDataObject;
-							planId = filters.planId as string;
-						} catch (e) {
-							// planId not found anywhere
-						}
-					}
-
+					const planId = this.getNodeParameter('planId', 0) as string;
 					if (!planId) {
 						return { results: [] };
 					}
@@ -169,10 +156,9 @@ export class MicrosoftPlanner implements INodeType {
 					if (operation === 'create') {
 						const planId = this.getNodeParameter('planId', i) as string;
 						const bucketIdParam = this.getNodeParameter('bucketId', i);
-					// Extract bucketId value from resourceLocator object or string
-					const bucketId = typeof bucketIdParam === 'string'
-						? bucketIdParam
-						: (bucketIdParam as IDataObject).value as string;
+						const bucketId = typeof bucketIdParam === 'string'
+							? bucketIdParam
+							: (bucketIdParam as IDataObject).value as string;
 						const title = this.getNodeParameter('title', i) as string;
 						const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 
@@ -263,7 +249,7 @@ export class MicrosoftPlanner implements INodeType {
 					// ----------------------------------
 					if (operation === 'get') {
 						const taskIdParam = this.getNodeParameter('taskId', i);
-					const taskId = typeof taskIdParam === 'string' ? taskIdParam : (taskIdParam as IDataObject).value as string;
+						const taskId = typeof taskIdParam === 'string' ? taskIdParam : (taskIdParam as IDataObject).value as string;
 						const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 
 						const responseData = await microsoftApiRequest.call(
@@ -289,16 +275,18 @@ export class MicrosoftPlanner implements INodeType {
 					// ----------------------------------
 					if (operation === 'getAll') {
 						const returnAll = this.getNodeParameter('returnAll', i);
-						const filters = this.getNodeParameter('filters', i) as IDataObject;
+						const filterBy = this.getNodeParameter('filterBy', i) as string;
+						const planId = this.getNodeParameter('planId', i) as string;
 
 						let endpoint = '';
 
-						if (filters.planId) {
-							endpoint = `/planner/plans/${filters.planId}/tasks`;
-						} else if (filters.bucketId) {
-							const bucketIdValue = typeof filters.bucketId === 'string'
-								? filters.bucketId
-								: (filters.bucketId as IDataObject).value as string;
+						if (filterBy === 'plan') {
+							endpoint = `/planner/plans/${planId}/tasks`;
+						} else if (filterBy === 'bucket') {
+							const bucketIdParam = this.getNodeParameter('bucketId', i);
+							const bucketIdValue = typeof bucketIdParam === 'string'
+								? bucketIdParam
+								: (bucketIdParam as IDataObject).value as string;
 							endpoint = `/planner/buckets/${bucketIdValue}/tasks`;
 						} else {
 							throw new NodeOperationError(
@@ -330,7 +318,7 @@ export class MicrosoftPlanner implements INodeType {
 					// ----------------------------------
 					if (operation === 'update') {
 						const taskIdParam = this.getNodeParameter('taskId', i);
-					const taskId = typeof taskIdParam === 'string' ? taskIdParam : (taskIdParam as IDataObject).value as string;
+						const taskId = typeof taskIdParam === 'string' ? taskIdParam : (taskIdParam as IDataObject).value as string;
 						const updateFields = this.getNodeParameter('updateFields', i) as IDataObject;
 
 						// Get current task to retrieve eTag
@@ -436,7 +424,7 @@ export class MicrosoftPlanner implements INodeType {
 					// ----------------------------------
 					if (operation === 'delete') {
 						const taskIdParam = this.getNodeParameter('taskId', i);
-					const taskId = typeof taskIdParam === 'string' ? taskIdParam : (taskIdParam as IDataObject).value as string;
+						const taskId = typeof taskIdParam === 'string' ? taskIdParam : (taskIdParam as IDataObject).value as string;
 
 						// Get current task to retrieve eTag
 						const currentTask = await microsoftApiRequest.call(

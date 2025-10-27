@@ -198,7 +198,7 @@ export const taskFields: INodeProperties[] = [
 		displayName: 'Task',
 		name: 'taskId',
 		type: 'resourceLocator',
-		default: { mode: 'list', value: '' },
+		default: { mode: 'id', value: '' },
 		required: true,
 		displayOptions: {
 			show: {
@@ -207,15 +207,6 @@ export const taskFields: INodeProperties[] = [
 			},
 		},
 		modes: [
-			{
-				displayName: 'From List',
-				name: 'list',
-				type: 'list',
-				typeOptions: {
-					searchListMethod: 'getTasks',
-					searchable: true,
-				},
-			},
 			{
 				displayName: 'By ID',
 				name: 'id',
@@ -283,11 +274,9 @@ export const taskFields: INodeProperties[] = [
 		description: 'Max number of results to return',
 	},
 	{
-		displayName: 'Filters',
-		name: 'filters',
-		type: 'collection',
-		placeholder: 'Add Filter',
-		default: {},
+		displayName: 'Filter By',
+		name: 'filterBy',
+		type: 'options',
 		displayOptions: {
 			show: {
 				resource: ['task'],
@@ -296,36 +285,62 @@ export const taskFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				displayName: 'Plan ID',
-				name: 'planId',
-				type: 'string',
-				default: '',
-				description: 'Filter tasks by Plan ID',
-				placeholder: 'Enter Plan ID',
+				name: 'Plan',
+				value: 'plan',
 			},
 			{
-				displayName: 'Bucket',
-				name: 'bucketId',
-				type: 'resourceLocator',
-				default: { mode: 'list', value: '' },
-				description: 'Filter tasks by bucket',
-				modes: [
-					{
-						displayName: 'From List',
-						name: 'list',
-						type: 'list',
-						typeOptions: {
-							searchListMethod: 'getBuckets',
-							searchable: true,
-						},
-					},
-					{
-						displayName: 'By ID',
-						name: 'id',
-						type: 'string',
-						placeholder: 'e.g. FTmIDbes6UyAjh1k0suR3JgACHty',
-					},
-				],
+				name: 'Bucket',
+				value: 'bucket',
+			},
+		],
+		default: 'plan',
+		description: 'Choose whether to filter by Plan or Bucket',
+	},
+	{
+		displayName: 'Plan ID',
+		name: 'planId',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['task'],
+				operation: ['getAll'],
+				filterBy: ['plan', 'bucket'],
+			},
+		},
+		default: '',
+		required: true,
+		description: 'The Plan ID to filter tasks',
+		placeholder: 'Enter Plan ID',
+	},
+	{
+		displayName: 'Bucket',
+		name: 'bucketId',
+		type: 'resourceLocator',
+		displayOptions: {
+			show: {
+				resource: ['task'],
+				operation: ['getAll'],
+				filterBy: ['bucket'],
+			},
+		},
+		default: { mode: 'list', value: '' },
+		required: true,
+		description: 'The Bucket to filter tasks',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'getBuckets',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g. FTmIDbes6UyAjh1k0suR3JgACHty',
 			},
 		],
 	},
