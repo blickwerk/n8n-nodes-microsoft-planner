@@ -182,6 +182,11 @@ Tested with n8n version 1.0.0 and above.
 
 ## Version History
 
+### 1.3.6
+- **Improved Update Task response**
+- Update Task now returns complete task data including description
+- Better user experience with full task details in response
+
 ### 1.3.5
 - **Documentation update**
 - Synced README with npm package (no code changes)

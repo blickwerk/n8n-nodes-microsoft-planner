@@ -419,6 +419,9 @@ export class MicrosoftPlanner implements INodeType {
 									'If-Match': detailsETag,
 								},
 							);
+
+							// Add description to response data
+							responseData.description = updateFields.description;
 						}
 
 						returnData.push(responseData);
