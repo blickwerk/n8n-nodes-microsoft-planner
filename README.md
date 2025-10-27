@@ -182,6 +182,10 @@ Tested with n8n version 1.0.0 and above.
 
 ## Version History
 
+### 1.3.5
+- **Documentation update**
+- Synced README with npm package (no code changes)
+
 ### 1.3.4
 - **Fixed "Empty Payload" error in Update Task**
 - Update Task now works correctly even when no fields are selected
