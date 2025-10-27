@@ -379,17 +379,22 @@ export class MicrosoftPlanner implements INodeType {
 							}
 						}
 
-						const responseData = await microsoftApiRequest.call(
-							this,
-							'PATCH',
-							`/planner/tasks/${taskId}`,
-							body,
-							{},
-							undefined,
-							{
-								'If-Match': eTag,
-							},
-						);
+						let responseData = currentTask;
+
+						// Only send PATCH request if there are fields to update (excluding description)
+						if (Object.keys(body).length > 0) {
+							responseData = await microsoftApiRequest.call(
+								this,
+								'PATCH',
+								`/planner/tasks/${taskId}`,
+								body,
+								{},
+								undefined,
+								{
+									'If-Match': eTag,
+								},
+							);
+						}
 
 						// Update description if provided
 						if (updateFields.description) {
