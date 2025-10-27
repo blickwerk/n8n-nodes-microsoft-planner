@@ -181,6 +181,12 @@ Tested with n8n version 1.0.0 and above.
 
 ## Version History
 
+### 1.2.4
+- **Fixed Bucket and Task dropdowns not showing!**
+- Changed field type from 'string' back to 'options' for proper dropdown display
+- Buckets now load correctly when Plan ID is entered
+- Tasks dropdown now works properly
+
 ### 1.2.3
 - Improved error handling for Buckets and Tasks loading
 - Better fallback values when data cannot be loaded

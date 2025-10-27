@@ -69,7 +69,7 @@ export const taskFields: INodeProperties[] = [
 	{
 		displayName: 'Bucket',
 		name: 'bucketId',
-		type: 'string',
+		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getBuckets',
 		},
@@ -81,8 +81,7 @@ export const taskFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The bucket to which the task belongs. Choose from the dropdown or enter a Bucket ID manually.',
-		placeholder: 'Select from dropdown or paste Bucket ID',
+		description: 'The bucket to which the task belongs',
 	},
 	{
 		displayName: 'Title',
@@ -184,7 +183,7 @@ export const taskFields: INodeProperties[] = [
 	{
 		displayName: 'Task',
 		name: 'taskId',
-		type: 'string',
+		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getTasks',
 		},
@@ -196,8 +195,7 @@ export const taskFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The task to operate on. Choose from the dropdown or enter a Task ID manually.',
-		placeholder: 'Select from dropdown or paste Task ID',
+		description: 'The task to operate on',
 	},
 	{
 		displayName: 'Additional Fields',
@@ -280,13 +278,12 @@ export const taskFields: INodeProperties[] = [
 			{
 				displayName: 'Bucket',
 				name: 'bucketId',
-				type: 'string',
+				type: 'options',
 				typeOptions: {
 					loadOptionsMethod: 'getBuckets',
 				},
 				default: '',
-				description: 'Filter tasks by bucket. Choose from the dropdown or enter a Bucket ID manually.',
-				placeholder: 'Select from dropdown or paste Bucket ID',
+				description: 'Filter tasks by bucket',
 			},
 		],
 	},
