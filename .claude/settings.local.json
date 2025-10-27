@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(npm run build:*)",
-      "Bash(npm link)"
+      "Bash(npm link)",
+      "Bash(npm whoami:*)",
+      "Bash(npm view:*)",
+      "Bash(npm publish:*)"
     ],
     "deny": [],
     "ask": []
