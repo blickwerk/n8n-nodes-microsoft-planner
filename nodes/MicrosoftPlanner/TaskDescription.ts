@@ -52,12 +52,9 @@ export const taskFields: INodeProperties[] = [
 	//         task:create
 	// ----------------------------------
 	{
-		displayName: 'Plan',
+		displayName: 'Plan ID',
 		name: 'planId',
 		type: 'string',
-		typeOptions: {
-			loadOptionsMethod: 'getPlans',
-		},
 		required: true,
 		displayOptions: {
 			show: {
@@ -66,8 +63,8 @@ export const taskFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The plan to which the task belongs. Choose from the dropdown or enter a Plan ID manually.',
-		placeholder: 'Select from dropdown or paste Plan ID',
+		description: 'The ID of the plan to which the task belongs',
+		placeholder: 'Enter Plan ID',
 	},
 	{
 		displayName: 'Bucket',
@@ -273,15 +270,12 @@ export const taskFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				displayName: 'Plan',
+				displayName: 'Plan ID',
 				name: 'planId',
 				type: 'string',
-				typeOptions: {
-					loadOptionsMethod: 'getPlans',
-				},
 				default: '',
-				description: 'Filter tasks by plan. Choose from the dropdown or enter a Plan ID manually.',
-				placeholder: 'Select from dropdown or paste Plan ID',
+				description: 'Filter tasks by Plan ID',
+				placeholder: 'Enter Plan ID',
 			},
 			{
 				displayName: 'Bucket',

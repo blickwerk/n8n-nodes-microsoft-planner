@@ -106,8 +106,8 @@ Configure the Microsoft Planner OAuth2 API credentials in n8n:
 ### Creating a Task
 
 To create a task:
-1. Select a **Plan** from the dropdown (automatically loaded from your Microsoft 365)
-2. Select a **Bucket** from the dropdown (loads buckets from the selected plan)
+1. Enter the **Plan ID** (you can find this in Microsoft Planner URL or via Graph Explorer)
+2. Select a **Bucket** from the dropdown (loads automatically based on the Plan ID)
 3. Enter the **Title** of the task
 
 Optional fields:
@@ -146,14 +146,28 @@ To update a task:
 - Percent Complete
 - Move to different bucket
 
-### How Dynamic Dropdowns Work
+### How to Find Plan IDs
 
-The node automatically fetches your data from Microsoft 365:
-- **Plans**: Loaded from your account when you open the Plan dropdown
-- **Buckets**: Dynamically loaded based on the selected Plan
-- **Tasks**: Loaded from the selected Plan or Bucket
+You can find your Plan ID in several ways:
 
-No need to manually look up IDs anymore! Just select from the dropdown menus.
+1. **From Planner URL**: Open Microsoft Planner in browser, the URL contains the Plan ID:
+   ```
+   https://tasks.office.com/.../ planId=YOUR_PLAN_ID_HERE /...
+   ```
+
+2. **Via Microsoft Graph Explorer**:
+   - Go to https://developer.microsoft.com/graph/graph-explorer
+   - Sign in
+   - Run: `GET /me/planner/plans`
+   - Copy the `id` field from the plan you want
+
+### Dynamic Dropdowns
+
+Once you enter a Plan ID:
+- **Buckets**: Automatically load for that plan
+- **Tasks**: Load based on selected Plan/Bucket
+
+You can also manually enter Bucket IDs and Task IDs if needed.
 
 ## Compatibility
 
@@ -166,6 +180,12 @@ Tested with n8n version 1.0.0 and above.
 - [Microsoft Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
 
 ## Version History
+
+### 1.2.2
+- Removed Plan dropdown (Plans cannot be loaded via API)
+- Plan ID is now manual input only
+- Buckets and Tasks still have dynamic dropdowns
+- Simplified and more reliable plan selection
 
 ### 1.2.1
 - Fixed Plans not loading (improved API endpoint to fetch from groups)
