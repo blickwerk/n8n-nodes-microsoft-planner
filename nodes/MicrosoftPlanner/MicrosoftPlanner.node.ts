@@ -59,12 +59,12 @@ export class MicrosoftPlanner implements INodeType {
 	};
 
 	methods = {
-		loadOptions: {
+		listSearch: {
 			async getBuckets(this: ILoadOptionsFunctions) {
 				try {
 					const planId = this.getNodeParameter('planId', 0) as string;
 					if (!planId) {
-						return [];
+						return { results: [] };
 					}
 
 					const buckets = await microsoftApiRequestAllItems.call(
@@ -75,31 +75,45 @@ export class MicrosoftPlanner implements INodeType {
 					);
 
 					if (!buckets || buckets.length === 0) {
-						return [];
+						return { results: [] };
 					}
 
-					return buckets.map((bucket: any) => ({
-						name: bucket.name || bucket.id,
-						value: bucket.id,
-					}));
+					return {
+						results: buckets.map((bucket: any) => ({
+							name: bucket.name || bucket.id,
+							value: bucket.id,
+						})),
+					};
 				} catch (error) {
 					console.error('Error loading buckets:', error);
-					return [];
+					return { results: [] };
 				}
 			},
 
 			async getTasks(this: ILoadOptionsFunctions) {
 				try {
 					const planId = this.getNodeParameter('planId', 0) as string;
-					const bucketId = this.getNodeParameter('bucketId', 0) as string;
+
+					// Try to get bucketId - might be undefined or an object
+					let bucketIdValue = '';
+					try {
+						const bucketId = this.getNodeParameter('bucketId', 0);
+						if (typeof bucketId === 'string') {
+							bucketIdValue = bucketId;
+						} else if (bucketId && typeof bucketId === 'object' && 'value' in bucketId) {
+							bucketIdValue = (bucketId as any).value;
+						}
+					} catch (error) {
+						// bucketId might not exist yet, that's ok
+					}
 
 					let endpoint = '';
-					if (bucketId) {
-						endpoint = `/planner/buckets/${bucketId}/tasks`;
+					if (bucketIdValue) {
+						endpoint = `/planner/buckets/${bucketIdValue}/tasks`;
 					} else if (planId) {
 						endpoint = `/planner/plans/${planId}/tasks`;
 					} else {
-						return [];
+						return { results: [] };
 					}
 
 					const tasks = await microsoftApiRequestAllItems.call(
@@ -110,16 +124,18 @@ export class MicrosoftPlanner implements INodeType {
 					);
 
 					if (!tasks || tasks.length === 0) {
-						return [];
+						return { results: [] };
 					}
 
-					return tasks.map((task: any) => ({
-						name: task.title || task.id,
-						value: task.id,
-					}));
+					return {
+						results: tasks.map((task: any) => ({
+							name: task.title || task.id,
+							value: task.id,
+						})),
+					};
 				} catch (error) {
 					console.error('Error loading tasks:', error);
-					return [];
+					return { results: [] };
 				}
 			},
 		},
@@ -139,7 +155,11 @@ export class MicrosoftPlanner implements INodeType {
 					// ----------------------------------
 					if (operation === 'create') {
 						const planId = this.getNodeParameter('planId', i) as string;
-						const bucketId = this.getNodeParameter('bucketId', i) as string;
+						const bucketIdParam = this.getNodeParameter('bucketId', i);
+					// Extract bucketId value from resourceLocator object or string
+					const bucketId = typeof bucketIdParam === 'string'
+						? bucketIdParam
+						: (bucketIdParam as IDataObject).value as string;
 						const title = this.getNodeParameter('title', i) as string;
 						const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 
@@ -229,7 +249,8 @@ export class MicrosoftPlanner implements INodeType {
 					//         task:get
 					// ----------------------------------
 					if (operation === 'get') {
-						const taskId = this.getNodeParameter('taskId', i) as string;
+						const taskIdParam = this.getNodeParameter('taskId', i);
+					const taskId = typeof taskIdParam === 'string' ? taskIdParam : (taskIdParam as IDataObject).value as string;
 						const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 
 						const responseData = await microsoftApiRequest.call(
@@ -292,7 +313,8 @@ export class MicrosoftPlanner implements INodeType {
 					//         task:update
 					// ----------------------------------
 					if (operation === 'update') {
-						const taskId = this.getNodeParameter('taskId', i) as string;
+						const taskIdParam = this.getNodeParameter('taskId', i);
+					const taskId = typeof taskIdParam === 'string' ? taskIdParam : (taskIdParam as IDataObject).value as string;
 						const updateFields = this.getNodeParameter('updateFields', i) as IDataObject;
 
 						// Get current task to retrieve eTag
@@ -397,7 +419,8 @@ export class MicrosoftPlanner implements INodeType {
 					//         task:delete
 					// ----------------------------------
 					if (operation === 'delete') {
-						const taskId = this.getNodeParameter('taskId', i) as string;
+						const taskIdParam = this.getNodeParameter('taskId', i);
+					const taskId = typeof taskIdParam === 'string' ? taskIdParam : (taskIdParam as IDataObject).value as string;
 
 						// Get current task to retrieve eTag
 						const currentTask = await microsoftApiRequest.call(

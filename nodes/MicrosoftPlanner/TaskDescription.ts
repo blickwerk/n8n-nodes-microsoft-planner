@@ -69,10 +69,8 @@ export const taskFields: INodeProperties[] = [
 	{
 		displayName: 'Bucket',
 		name: 'bucketId',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getBuckets',
-		},
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
 		displayOptions: {
 			show: {
@@ -80,7 +78,23 @@ export const taskFields: INodeProperties[] = [
 				operation: ['create'],
 			},
 		},
-		default: '',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'getBuckets',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g. FTmIDbes6UyAjh1k0suR3JgACHty',
+			},
+		],
 		description: 'The bucket to which the task belongs',
 	},
 	{
@@ -183,10 +197,8 @@ export const taskFields: INodeProperties[] = [
 	{
 		displayName: 'Task',
 		name: 'taskId',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getTasks',
-		},
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
 		displayOptions: {
 			show: {
@@ -194,7 +206,23 @@ export const taskFields: INodeProperties[] = [
 				operation: ['get', 'delete', 'update'],
 			},
 		},
-		default: '',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'getTasks',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL',
+			},
+		],
 		description: 'The task to operate on',
 	},
 	{
