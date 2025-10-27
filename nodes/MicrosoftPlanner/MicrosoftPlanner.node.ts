@@ -61,17 +61,40 @@ export class MicrosoftPlanner implements INodeType {
 	methods = {
 		loadOptions: {
 			async getPlans(this: ILoadOptionsFunctions) {
-				const plans = await microsoftApiRequestAllItems.call(
-					this,
-					'value',
-					'GET',
-					'/me/planner/plans',
-				);
+				try {
+					// Try to get plans from groups the user is member of
+					const groups = await microsoftApiRequestAllItems.call(
+						this,
+						'value',
+						'GET',
+						'/me/memberOf/microsoft.graph.group?$filter=groupTypes/any(c:c+eq+%27Unified%27)',
+					);
 
-				return plans.map((plan: any) => ({
-					name: plan.title,
-					value: plan.id,
-				}));
+					const plans = [];
+					for (const group of groups) {
+						try {
+							const groupPlans = await microsoftApiRequest.call(
+								this,
+								'GET',
+								`/groups/${group.id}/planner/plans`,
+							);
+							if (groupPlans.value && groupPlans.value.length > 0) {
+								plans.push(...groupPlans.value);
+							}
+						} catch (error) {
+							// Skip groups without plans
+							continue;
+						}
+					}
+
+					return plans.map((plan: any) => ({
+						name: plan.title || plan.id,
+						value: plan.id,
+					}));
+				} catch (error) {
+					console.error('Error loading plans:', error);
+					return [];
+				}
 			},
 
 			async getBuckets(this: ILoadOptionsFunctions) {

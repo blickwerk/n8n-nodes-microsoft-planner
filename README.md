@@ -167,6 +167,13 @@ Tested with n8n version 1.0.0 and above.
 
 ## Version History
 
+### 1.2.1
+- Fixed Plans not loading (improved API endpoint to fetch from groups)
+- Allow manual ID input in all dropdown fields
+- You can now choose from dropdown OR paste IDs manually
+- Added placeholders and better descriptions for all ID fields
+- Improved error handling for plans loading
+
 ### 1.2.0
 - **Major UX Improvement**: Added dynamic dropdowns for Plans, Buckets, and Tasks
 - No more manual ID lookup - select from dropdown menus
