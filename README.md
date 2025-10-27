@@ -86,7 +86,7 @@ Configure the Microsoft Planner OAuth2 API credentials in n8n:
 
 ## Features
 
-- **Dynamic Dropdowns**: Automatically loads and displays your Plans, Buckets, and Tasks - no need to manually copy IDs!
+- **Resource Locator UI**: Choose between "From List" (dropdown) or "By ID" (manual input) for Buckets
 - **User Assignment**: Assign tasks to users by email address
 - **Priority Management**: Easy-to-use priority dropdown (Urgent, Important, Medium, Low)
 - **Full CRUD Operations**: Create, Read, Update, and Delete tasks
@@ -125,17 +125,18 @@ Optional fields:
 ### Getting Tasks
 
 **Get a single task:**
-- Select the task from the dropdown (automatically loaded from your plans)
+- Enter the **Task ID** manually (no dropdown available for single task lookups)
 
 **Get many tasks:**
-- Filter by **Plan** (select from dropdown)
-- Or filter by **Bucket** (select from dropdown)
+- Choose filter type: **Plan** or **Bucket**
+- Enter the **Plan ID**
+- If filtering by Bucket: Select bucket from dropdown or enter Bucket ID manually
 - Set a limit or return all tasks
 
 ### Updating a Task
 
 To update a task:
-1. Select the **Task** from the dropdown
+1. Enter the **Task ID** manually
 2. Update any of these fields:
 - Title
 - Description
@@ -161,13 +162,13 @@ You can find your Plan ID in several ways:
    - Run: `GET /me/planner/plans`
    - Copy the `id` field from the plan you want
 
-### Dynamic Dropdowns
+### Resource Locator (From List / By ID)
 
-Once you enter a Plan ID:
-- **Buckets**: Automatically load for that plan
-- **Tasks**: Load based on selected Plan/Bucket
+When creating tasks or filtering by bucket:
+- **From List**: Select from dropdown (automatically loads based on Plan ID)
+- **By ID**: Manually enter the ID if you already know it
 
-You can also manually enter Bucket IDs and Task IDs if needed.
+For Get/Update/Delete operations, you need to manually enter the Task ID.
 
 ## Compatibility
 
@@ -180,6 +181,19 @@ Tested with n8n version 1.0.0 and above.
 - [Microsoft Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
 
 ## Version History
+
+### 1.3.3
+- **Restructured Get Many Tasks for better UX**
+- Added "Filter By" dropdown to choose between Plan or Bucket filtering
+- Plan ID and Bucket are now separate fields (not in collection)
+- Bucket dropdown now properly loads when Plan ID is entered
+- Simplified Get/Update/Delete Task to use "By ID" only (no dropdown)
+- Resource Locator UI for buckets with "From List" / "By ID" toggle
+
+### 1.3.0 - 1.3.2
+- Added resource locator UI for Buckets and Tasks
+- Converted from loadOptions to listSearch methods
+- Various fixes for dropdown loading issues
 
 ### 1.2.4
 - **Fixed Bucket and Task dropdowns not showing!**
