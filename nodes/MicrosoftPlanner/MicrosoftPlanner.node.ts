@@ -7,7 +7,15 @@ import {
 	NodeOperationError,
 } from 'n8n-workflow';
 
-import { cleanETag, microsoftApiRequest, microsoftApiRequestAllItems } from './GenericFunctions';
+import {
+	cleanETag,
+	createAssignmentsObject,
+	formatDateTime,
+	getUserIdByEmail,
+	microsoftApiRequest,
+	microsoftApiRequestAllItems,
+	parseAssignments,
+} from './GenericFunctions';
 import { taskFields, taskOperations } from './TaskDescription';
 
 export class MicrosoftPlanner implements INodeType {
@@ -78,15 +86,32 @@ export class MicrosoftPlanner implements INodeType {
 						}
 
 						if (additionalFields.dueDateTime) {
-							body.dueDateTime = additionalFields.dueDateTime;
+							body.dueDateTime = formatDateTime(additionalFields.dueDateTime as string);
 						}
 
 						if (additionalFields.startDateTime) {
-							body.startDateTime = additionalFields.startDateTime;
+							body.startDateTime = formatDateTime(additionalFields.startDateTime as string);
 						}
 
 						if (additionalFields.percentComplete !== undefined) {
 							body.percentComplete = additionalFields.percentComplete;
+						}
+
+						// Handle assignments
+						if (additionalFields.assignments) {
+							const emails = parseAssignments(additionalFields.assignments as string);
+							const userIds: string[] = [];
+
+							for (const email of emails) {
+								const userId = await getUserIdByEmail.call(this, email);
+								if (userId) {
+									userIds.push(userId);
+								}
+							}
+
+							if (userIds.length > 0) {
+								body.assignments = createAssignmentsObject(userIds);
+							}
 						}
 
 						const responseData = await microsoftApiRequest.call(
@@ -216,11 +241,11 @@ export class MicrosoftPlanner implements INodeType {
 						}
 
 						if (updateFields.dueDateTime) {
-							body.dueDateTime = updateFields.dueDateTime;
+							body.dueDateTime = formatDateTime(updateFields.dueDateTime as string);
 						}
 
 						if (updateFields.startDateTime) {
-							body.startDateTime = updateFields.startDateTime;
+							body.startDateTime = formatDateTime(updateFields.startDateTime as string);
 						}
 
 						if (updateFields.percentComplete !== undefined) {
@@ -229,6 +254,23 @@ export class MicrosoftPlanner implements INodeType {
 
 						if (updateFields.bucketId) {
 							body.bucketId = updateFields.bucketId;
+						}
+
+						// Handle assignments
+						if (updateFields.assignments) {
+							const emails = parseAssignments(updateFields.assignments as string);
+							const userIds: string[] = [];
+
+							for (const email of emails) {
+								const userId = await getUserIdByEmail.call(this, email);
+								if (userId) {
+									userIds.push(userId);
+								}
+							}
+
+							if (userIds.length > 0) {
+								body.assignments = createAssignmentsObject(userIds);
+							}
 						}
 
 						const responseData = await microsoftApiRequest.call(

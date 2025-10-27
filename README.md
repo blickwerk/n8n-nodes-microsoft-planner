@@ -14,7 +14,7 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 1. Go to **Settings > Community Nodes** in your n8n instance
 2. Select **Install**
-3. Enter `n8n-nodes-microsoft-planner` in **Enter npm package name**
+3. Enter `@blickwerk/n8n-nodes-microsoft-planner` in **Enter npm package name**
 4. Agree to the [risks](https://docs.n8n.io/integrations/community-nodes/risks/) of using community nodes
 5. Select **Install**
 
@@ -22,10 +22,10 @@ After installing the node, you can use it like any other node in your workflows.
 
 ### Manual Installation
 
-To install manually from source:
+To install manually:
 
 ```bash
-npm install n8n-nodes-microsoft-planner
+npm install @blickwerk/n8n-nodes-microsoft-planner
 ```
 
 ## Prerequisites
@@ -100,11 +100,16 @@ To create a task, you need:
 - **Title**: The task title
 
 Optional fields:
-- Description
-- Priority (0-10, where 0 is most urgent)
-- Due Date Time
-- Start Date Time
-- Percent Complete
+- **Description**: Detailed task description
+- **Priority**: Select from dropdown
+  - Urgent (highest priority)
+  - Important
+  - Medium (default)
+  - Low
+- **Assigned To**: Comma-separated list of user emails (e.g., `user1@domain.com, user2@domain.com`)
+- **Due Date Time**: When the task should be completed
+- **Start Date Time**: When work on the task should begin
+- **Percent Complete**: Task completion percentage (0-100)
 
 ### Getting Tasks
 
@@ -115,7 +120,15 @@ You can retrieve tasks by:
 
 ### Updating a Task
 
-To update a task, provide the Task ID and the fields you want to update.
+To update a task, provide the Task ID and the fields you want to update. You can update:
+- Title
+- Description
+- Priority (via dropdown)
+- Assigned users (via email list)
+- Due Date Time
+- Start Date Time
+- Percent Complete
+- Move to different bucket
 
 ### Finding Plan and Bucket IDs
 
@@ -139,10 +152,20 @@ Tested with n8n version 1.0.0 and above.
 
 ## Version History
 
+### 1.1.0
+- Added priority dropdown (Urgent, Important, Medium, Low) instead of number input
+- Added user assignment functionality (assign tasks by email)
+- Improved user experience with better field descriptions
+
+### 1.0.1
+- Fixed DateTime format handling (automatic conversion to ISO 8601)
+- Improved error handling for invalid date formats
+
 ### 1.0.0
 - Initial release
 - Support for creating and retrieving Planner tasks
 - OAuth2 authentication
+- CRUD operations (Create, Read, Update, Delete)
 
 ## License
 

@@ -5,7 +5,9 @@
       "Bash(npm link)",
       "Bash(npm whoami:*)",
       "Bash(npm view:*)",
-      "Bash(npm publish:*)"
+      "Bash(npm publish:*)",
+      "Bash(npm version:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

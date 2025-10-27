@@ -119,9 +119,35 @@ export const taskFields: INodeProperties[] = [
 			{
 				displayName: 'Priority',
 				name: 'priority',
-				type: 'number',
+				type: 'options',
+				options: [
+					{
+						name: 'Urgent',
+						value: 0,
+					},
+					{
+						name: 'Important',
+						value: 1,
+					},
+					{
+						name: 'Medium',
+						value: 5,
+					},
+					{
+						name: 'Low',
+						value: 9,
+					},
+				],
 				default: 5,
-				description: 'Priority of the task (0-10, where 0 is most urgent)',
+				description: 'Priority of the task',
+			},
+			{
+				displayName: 'Assigned To (User IDs)',
+				name: 'assignments',
+				type: 'string',
+				default: '',
+				placeholder: 'user1@domain.com, user2@domain.com',
+				description: 'Comma-separated list of user emails or IDs to assign the task to',
 			},
 			{
 				displayName: 'Due Date Time',
@@ -287,9 +313,35 @@ export const taskFields: INodeProperties[] = [
 			{
 				displayName: 'Priority',
 				name: 'priority',
-				type: 'number',
+				type: 'options',
+				options: [
+					{
+						name: 'Urgent',
+						value: 0,
+					},
+					{
+						name: 'Important',
+						value: 1,
+					},
+					{
+						name: 'Medium',
+						value: 5,
+					},
+					{
+						name: 'Low',
+						value: 9,
+					},
+				],
 				default: 5,
-				description: 'Priority of the task (0-10, where 0 is most urgent)',
+				description: 'Priority of the task',
+			},
+			{
+				displayName: 'Assigned To (User IDs)',
+				name: 'assignments',
+				type: 'string',
+				default: '',
+				placeholder: 'user1@domain.com, user2@domain.com',
+				description: 'Comma-separated list of user emails or IDs to assign the task to',
 			},
 			{
 				displayName: 'Due Date Time',

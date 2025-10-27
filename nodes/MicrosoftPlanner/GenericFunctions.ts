@@ -71,3 +71,59 @@ export function cleanETag(eTag: string): string {
 	}
 	return eTag;
 }
+
+export function formatDateTime(dateTime: string | undefined): string | undefined {
+	if (!dateTime) {
+		return undefined;
+	}
+
+	// If already in ISO format with timezone, return as is
+	if (dateTime.includes('T') && (dateTime.endsWith('Z') || dateTime.includes('+'))) {
+		return dateTime;
+	}
+
+	// Convert to ISO 8601 format with UTC timezone
+	const date = new Date(dateTime);
+	if (isNaN(date.getTime())) {
+		return undefined;
+	}
+
+	return date.toISOString();
+}
+
+export async function getUserIdByEmail(
+	this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions,
+	email: string,
+): Promise<string | null> {
+	try {
+		const response = await microsoftApiRequest.call(
+			this,
+			'GET',
+			`/users/${encodeURIComponent(email)}`,
+		);
+		return response.id;
+	} catch (error) {
+		return null;
+	}
+}
+
+export function parseAssignments(assignmentsString: string): string[] {
+	if (!assignmentsString || assignmentsString.trim() === '') {
+		return [];
+	}
+	return assignmentsString
+		.split(',')
+		.map((email) => email.trim())
+		.filter((email) => email.length > 0);
+}
+
+export function createAssignmentsObject(userIds: string[]): IDataObject {
+	const assignments: IDataObject = {};
+	for (const userId of userIds) {
+		assignments[userId] = {
+			'@odata.type': '#microsoft.graph.plannerAssignment',
+			orderHint: ' !',
+		};
+	}
+	return assignments;
+}
