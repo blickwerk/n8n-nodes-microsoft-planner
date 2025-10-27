@@ -7,7 +7,9 @@
       "Bash(npm view:*)",
       "Bash(npm publish:*)",
       "Bash(npm version:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []

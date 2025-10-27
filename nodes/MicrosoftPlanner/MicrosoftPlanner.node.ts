@@ -85,12 +85,14 @@ export class MicrosoftPlanner implements INodeType {
 							body.priority = additionalFields.priority;
 						}
 
-						if (additionalFields.dueDateTime) {
-							body.dueDateTime = formatDateTime(additionalFields.dueDateTime as string);
+						const formattedDueDateTime = formatDateTime(additionalFields.dueDateTime as string);
+						if (formattedDueDateTime) {
+							body.dueDateTime = formattedDueDateTime;
 						}
 
-						if (additionalFields.startDateTime) {
-							body.startDateTime = formatDateTime(additionalFields.startDateTime as string);
+						const formattedStartDateTime = formatDateTime(additionalFields.startDateTime as string);
+						if (formattedStartDateTime) {
+							body.startDateTime = formattedStartDateTime;
 						}
 
 						if (additionalFields.percentComplete !== undefined) {
@@ -106,11 +108,15 @@ export class MicrosoftPlanner implements INodeType {
 								const userId = await getUserIdByEmail.call(this, email);
 								if (userId) {
 									userIds.push(userId);
+								} else {
+									console.warn(`Could not find user ID for email: ${email}`);
 								}
 							}
 
 							if (userIds.length > 0) {
 								body.assignments = createAssignmentsObject(userIds);
+							} else if (emails.length > 0) {
+								console.warn('No valid user IDs found for assignment. Check if User.Read.All permission is granted.');
 							}
 						}
 
@@ -240,12 +246,14 @@ export class MicrosoftPlanner implements INodeType {
 							body.priority = updateFields.priority;
 						}
 
-						if (updateFields.dueDateTime) {
-							body.dueDateTime = formatDateTime(updateFields.dueDateTime as string);
+						const formattedDueDateTime = formatDateTime(updateFields.dueDateTime as string);
+						if (formattedDueDateTime) {
+							body.dueDateTime = formattedDueDateTime;
 						}
 
-						if (updateFields.startDateTime) {
-							body.startDateTime = formatDateTime(updateFields.startDateTime as string);
+						const formattedStartDateTime = formatDateTime(updateFields.startDateTime as string);
+						if (formattedStartDateTime) {
+							body.startDateTime = formattedStartDateTime;
 						}
 
 						if (updateFields.percentComplete !== undefined) {
@@ -265,11 +273,15 @@ export class MicrosoftPlanner implements INodeType {
 								const userId = await getUserIdByEmail.call(this, email);
 								if (userId) {
 									userIds.push(userId);
+								} else {
+									console.warn(`Could not find user ID for email: ${email}`);
 								}
 							}
 
 							if (userIds.length > 0) {
 								body.assignments = createAssignmentsObject(userIds);
+							} else if (emails.length > 0) {
+								console.warn('No valid user IDs found for assignment. Check if User.Read.All permission is granted.');
 							}
 						}
 

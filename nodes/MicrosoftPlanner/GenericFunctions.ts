@@ -102,7 +102,9 @@ export async function getUserIdByEmail(
 			`/users/${encodeURIComponent(email)}`,
 		);
 		return response.id;
-	} catch (error) {
+	} catch (error: any) {
+		// Log error for debugging
+		console.error(`Failed to get user ID for email ${email}:`, error.message || error);
 		return null;
 	}
 }

@@ -36,6 +36,7 @@ You need to have:
 - Azure AD App Registration with the following API permissions:
   - `Tasks.ReadWrite` - Read and write tasks
   - `Group.ReadWrite.All` - Read and write all groups (required for Planner)
+  - `User.Read.All` - Read all users (required for user assignment by email)
 
 ## Setting up Azure AD App
 
@@ -54,9 +55,12 @@ You need to have:
 3. Select **Microsoft Graph**
 4. Select **Delegated permissions**
 5. Add the following permissions:
-   - `Tasks.ReadWrite`
-   - `Group.ReadWrite.All`
+   - `Tasks.ReadWrite` - Read and write tasks
+   - `Group.ReadWrite.All` - Read and write all groups (required for Planner)
+   - `User.Read.All` - Read all users' basic profiles (required for user assignment)
 6. Click **Grant admin consent**
+
+**Note**: The `User.Read.All` permission is required if you want to assign tasks to users by email address.
 
 ### Create Client Secret
 
@@ -151,6 +155,12 @@ Tested with n8n version 1.0.0 and above.
 - [Microsoft Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
 
 ## Version History
+
+### 1.1.1
+- Fixed startDateTime not being set (was returning null)
+- Fixed user assignment by adding User.Read.All permission requirement
+- Added error logging for failed user lookups
+- Improved README documentation with all required permissions
 
 ### 1.1.0
 - Added priority dropdown (Urgent, Important, Medium, Low) instead of number input
