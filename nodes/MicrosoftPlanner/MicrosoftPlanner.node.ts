@@ -62,7 +62,20 @@ export class MicrosoftPlanner implements INodeType {
 		listSearch: {
 			async getBuckets(this: ILoadOptionsFunctions) {
 				try {
-					const planId = this.getNodeParameter('planId', 0) as string;
+					// Try to get planId from main parameter or from filters collection
+					let planId = '';
+					try {
+						planId = this.getNodeParameter('planId', 0) as string;
+					} catch (error) {
+						// If not found in main parameters, try filters
+						try {
+							const filters = this.getNodeParameter('filters', 0) as IDataObject;
+							planId = filters.planId as string;
+						} catch (e) {
+							// planId not found anywhere
+						}
+					}
+
 					if (!planId) {
 						return { results: [] };
 					}
@@ -283,7 +296,10 @@ export class MicrosoftPlanner implements INodeType {
 						if (filters.planId) {
 							endpoint = `/planner/plans/${filters.planId}/tasks`;
 						} else if (filters.bucketId) {
-							endpoint = `/planner/buckets/${filters.bucketId}/tasks`;
+							const bucketIdValue = typeof filters.bucketId === 'string'
+								? filters.bucketId
+								: (filters.bucketId as IDataObject).value as string;
+							endpoint = `/planner/buckets/${bucketIdValue}/tasks`;
 						} else {
 							throw new NodeOperationError(
 								this.getNode(),
