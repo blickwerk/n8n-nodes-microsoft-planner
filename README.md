@@ -182,6 +182,12 @@ Tested with n8n version 1.0.0 and above.
 
 ## Version History
 
+### 1.3.4
+- **Fixed "Empty Payload" error in Update Task**
+- Update Task now works correctly even when no fields are selected
+- Only sends PATCH request when there are actual fields to update
+- Improved error handling for update operations
+
 ### 1.3.3
 - **Restructured Get Many Tasks for better UX**
 - Added "Filter By" dropdown to choose between Plan or Bucket filtering
