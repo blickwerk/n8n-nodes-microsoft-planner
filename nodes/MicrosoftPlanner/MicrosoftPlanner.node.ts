@@ -61,48 +61,66 @@ export class MicrosoftPlanner implements INodeType {
 	methods = {
 		loadOptions: {
 			async getBuckets(this: ILoadOptionsFunctions) {
-				const planId = this.getNodeParameter('planId', 0) as string;
-				if (!planId) {
+				try {
+					const planId = this.getNodeParameter('planId', 0) as string;
+					if (!planId) {
+						return [];
+					}
+
+					const buckets = await microsoftApiRequestAllItems.call(
+						this,
+						'value',
+						'GET',
+						`/planner/plans/${planId}/buckets`,
+					);
+
+					if (!buckets || buckets.length === 0) {
+						return [];
+					}
+
+					return buckets.map((bucket: any) => ({
+						name: bucket.name || bucket.id,
+						value: bucket.id,
+					}));
+				} catch (error) {
+					console.error('Error loading buckets:', error);
 					return [];
 				}
-
-				const buckets = await microsoftApiRequestAllItems.call(
-					this,
-					'value',
-					'GET',
-					`/planner/plans/${planId}/buckets`,
-				);
-
-				return buckets.map((bucket: any) => ({
-					name: bucket.name,
-					value: bucket.id,
-				}));
 			},
 
 			async getTasks(this: ILoadOptionsFunctions) {
-				const planId = this.getNodeParameter('planId', 0) as string;
-				const bucketId = this.getNodeParameter('bucketId', 0) as string;
+				try {
+					const planId = this.getNodeParameter('planId', 0) as string;
+					const bucketId = this.getNodeParameter('bucketId', 0) as string;
 
-				let endpoint = '';
-				if (bucketId) {
-					endpoint = `/planner/buckets/${bucketId}/tasks`;
-				} else if (planId) {
-					endpoint = `/planner/plans/${planId}/tasks`;
-				} else {
+					let endpoint = '';
+					if (bucketId) {
+						endpoint = `/planner/buckets/${bucketId}/tasks`;
+					} else if (planId) {
+						endpoint = `/planner/plans/${planId}/tasks`;
+					} else {
+						return [];
+					}
+
+					const tasks = await microsoftApiRequestAllItems.call(
+						this,
+						'value',
+						'GET',
+						endpoint,
+					);
+
+					if (!tasks || tasks.length === 0) {
+						return [];
+					}
+
+					return tasks.map((task: any) => ({
+						name: task.title || task.id,
+						value: task.id,
+					}));
+				} catch (error) {
+					console.error('Error loading tasks:', error);
 					return [];
 				}
-
-				const tasks = await microsoftApiRequestAllItems.call(
-					this,
-					'value',
-					'GET',
-					endpoint,
-				);
-
-				return tasks.map((task: any) => ({
-					name: task.title,
-					value: task.id,
-				}));
 			},
 		},
 	};

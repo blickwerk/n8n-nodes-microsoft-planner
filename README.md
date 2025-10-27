@@ -181,6 +181,11 @@ Tested with n8n version 1.0.0 and above.
 
 ## Version History
 
+### 1.2.3
+- Improved error handling for Buckets and Tasks loading
+- Better fallback values when data cannot be loaded
+- Added console logging for debugging dropdown issues
+
 ### 1.2.2
 - Removed Plan dropdown (Plans cannot be loaded via API)
 - Plan ID is now manual input only
