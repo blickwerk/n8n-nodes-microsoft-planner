@@ -11,7 +11,8 @@
       "Bash(git commit:*)",
       "Bash(git push)",
       "Bash(cat:*)",
-      "Bash(node update_resourcelocator.js:*)"
+      "Bash(node update_resourcelocator.js:*)",
+      "Bash(node update_getall.js:*)"
     ],
     "deny": [],
     "ask": []

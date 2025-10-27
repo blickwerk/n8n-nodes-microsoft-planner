@@ -306,12 +306,26 @@ export const taskFields: INodeProperties[] = [
 			{
 				displayName: 'Bucket',
 				name: 'bucketId',
-				type: 'options',
-				typeOptions: {
-					loadOptionsMethod: 'getBuckets',
-				},
-				default: '',
+				type: 'resourceLocator',
+				default: { mode: 'list', value: '' },
 				description: 'Filter tasks by bucket',
+				modes: [
+					{
+						displayName: 'From List',
+						name: 'list',
+						type: 'list',
+						typeOptions: {
+							searchListMethod: 'getBuckets',
+							searchable: true,
+						},
+					},
+					{
+						displayName: 'By ID',
+						name: 'id',
+						type: 'string',
+						placeholder: 'e.g. FTmIDbes6UyAjh1k0suR3JgACHty',
+					},
+				],
 			},
 		],
 	},
