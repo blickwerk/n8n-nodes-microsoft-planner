@@ -379,11 +379,9 @@ export class MicrosoftPlanner implements INodeType {
 							}
 						}
 
-						let responseData = currentTask;
-
 						// Only send PATCH request if there are fields to update (excluding description)
 						if (Object.keys(body).length > 0) {
-							responseData = await microsoftApiRequest.call(
+							await microsoftApiRequest.call(
 								this,
 								'PATCH',
 								`/planner/tasks/${taskId}`,
@@ -419,10 +417,14 @@ export class MicrosoftPlanner implements INodeType {
 									'If-Match': detailsETag,
 								},
 							);
-
-							// Add description to response data
-							responseData.description = updateFields.description;
 						}
+
+						// Fetch updated task to return complete data
+						const responseData = await microsoftApiRequest.call(
+							this,
+							'GET',
+							`/planner/tasks/${taskId}`,
+						);
 
 						returnData.push(responseData);
 					}

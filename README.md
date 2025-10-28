@@ -182,6 +182,12 @@ Tested with n8n version 1.0.0 and above.
 
 ## Version History
 
+### 1.3.7
+- **Fixed Update Task response handling**
+- Fetch complete updated task data after PATCH operation
+- Always returns full task object with all current values
+- Fixes empty array and undefined description issues
+
 ### 1.3.6
 - **Improved Update Task response**
 - Update Task now returns complete task data including description
