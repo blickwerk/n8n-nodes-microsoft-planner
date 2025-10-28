@@ -459,6 +459,38 @@ export class MicrosoftPlanner implements INodeType {
 
 						returnData.push({ success: true, taskId });
 					}
+
+
+					// ----------------------------------
+					//         task:getFiles
+					// ----------------------------------
+					if (operation === 'getFiles') {
+						const taskIdParam = this.getNodeParameter('taskId', i);
+						const taskId = typeof taskIdParam === 'string' ? taskIdParam : (taskIdParam as IDataObject).value as string;
+
+						// Get task details
+						const details = await microsoftApiRequest.call(this, 'GET', `/planner/tasks/${taskId}/details`);
+
+						const references = details.references || {};
+						const files = Object.keys(references).map((encodedUrl) => {
+							// Decode the URL
+							const url = decodeURIComponent(encodedUrl);
+							return {
+								url,
+								alias: references[encodedUrl].alias,
+								type: references[encodedUrl].type,
+								previewPriority: references[encodedUrl].previewPriority,
+								lastModifiedDateTime: references[encodedUrl].lastModifiedDateTime,
+								lastModifiedBy: references[encodedUrl].lastModifiedBy,
+							};
+						});
+
+						returnData.push({
+							taskId,
+							fileCount: files.length,
+							files,
+						});
+					}
 				}
 			} catch (error) {
 				if (this.continueOnFail()) {

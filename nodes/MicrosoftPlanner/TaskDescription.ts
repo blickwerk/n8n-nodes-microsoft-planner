@@ -42,6 +42,12 @@ export const taskOperations: INodeProperties[] = [
 				description: 'Delete a task',
 				action: 'Delete a task',
 			},
+			{
+				name: 'Get Files',
+				value: 'getFiles',
+				description: 'Get files attached to a task',
+				action: 'Get files from a task',
+			},
 		],
 		default: 'create',
 	},
@@ -440,5 +446,30 @@ export const taskFields: INodeProperties[] = [
 				description: 'Move task to a different bucket',
 			},
 		],
+	},
+	// ----------------------------------
+	//         task:getFiles
+	// ----------------------------------
+	{
+		displayName: 'Task',
+		name: 'taskId',
+		type: 'resourceLocator',
+		default: { mode: 'id', value: '' },
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['task'],
+				operation: ['getFiles'],
+			},
+		},
+		modes: [
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g. rz1EH6N_a0aLpRm-2QifxZgAF5OL',
+			},
+		],
+		description: 'The Task ID to get files from',
 	},
 ];

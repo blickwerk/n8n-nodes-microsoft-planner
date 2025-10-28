@@ -100,6 +100,7 @@ Configure the Microsoft Planner OAuth2 API credentials in n8n:
 - **Get Many** - Get multiple tasks from a plan or bucket
 - **Update** - Update an existing task
 - **Delete** - Delete a task
+- **Get Files** - Get all files attached to a task
 
 ## Usage
 
@@ -147,6 +148,21 @@ To update a task:
 - Percent Complete
 - Move to different bucket
 
+### Getting Files from a Task
+
+To get all files attached to a task:
+1. Enter the **Task ID** manually
+2. The operation returns:
+   - **taskId**: The task ID
+   - **fileCount**: Number of attached files
+   - **files**: Array of file objects with:
+     - **url**: Decoded SharePoint URL (ready to use)
+     - **alias**: Display name of the file
+     - **type**: File type (e.g., PowerPoint, Word, Excel, PDF, Other)
+     - **previewPriority**: Priority for preview display
+     - **lastModifiedDateTime**: When the file reference was last modified
+     - **lastModifiedBy**: Who last modified the reference
+
 ### How to Find Plan IDs
 
 You can find your Plan ID in several ways:
@@ -181,6 +197,12 @@ Tested with n8n version 1.0.0 and above.
 - [Microsoft Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
 
 ## Version History
+
+### 1.3.9
+- **Added Get Files operation**
+- Retrieve all files attached to a task
+- URLs are properly decoded for direct use
+- Returns file metadata including alias, type, and last modified info
 
 ### 1.3.8
 - **Fixed priority values**
