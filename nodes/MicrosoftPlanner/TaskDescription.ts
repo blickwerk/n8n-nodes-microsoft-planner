@@ -141,11 +141,11 @@ export const taskFields: INodeProperties[] = [
 				options: [
 					{
 						name: 'Urgent',
-						value: 0,
+						value: 1,
 					},
 					{
 						name: 'Important',
-						value: 1,
+						value: 3,
 					},
 					{
 						name: 'Medium',

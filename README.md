@@ -182,6 +182,11 @@ Tested with n8n version 1.0.0 and above.
 
 ## Version History
 
+### 1.3.8
+- **Fixed priority values**
+- Corrected priority mapping: Urgent (1), Important (3), Medium (5), Low (9)
+- Priority values now match Microsoft Planner API specifications
+
 ### 1.3.7
 - **Fixed Update Task response handling**
 - Fetch complete updated task data after PATCH operation
