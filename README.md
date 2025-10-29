@@ -198,6 +198,11 @@ Tested with n8n version 1.0.0 and above.
 
 ## Version History
 
+### 1.4.0
+- **Updated branding**
+- New Planner icon/logo
+- Added About Blickwerk Media section with company info and social links
+
 ### 1.3.9
 - **Added Get Files operation**
 - Retrieve all files attached to a task
@@ -303,6 +308,16 @@ Tested with n8n version 1.0.0 and above.
 ## Author
 
 Developed by **Blickwerk Media UG**
+
+### About Blickwerk Media
+
+We're a digital agency based in Germany, building automation, design, and web solutions for clients across industries.
+
+Our focus is on efficient workflows, strong brand experiences, and open-source contributions that make digital tools more connected.
+
+- **Web**: [blickwerk.media](https://blickwerk.media)
+- **LinkedIn**: [linkedin.com/company/blickwerkmedia](https://linkedin.com/company/blickwerkmedia)
+- **Instagram**: [instagram.com/blickwerk.media](https://instagram.com/blickwerk.media)
 
 ## Support
 
