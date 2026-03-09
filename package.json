@@ -1,6 +1,6 @@
 {
-  "name": "@blickwerk/n8n-nodes-microsoft-planner",
-  "version": "1.4.0",
+  "name": "@united-workspace/n8n-nodes-microsoft-planner",
+  "version": "1.5.5",
   "description": "n8n node for Microsoft Planner - Create and retrieve tasks",
   "keywords": [
     "n8n-community-node-package",
@@ -10,22 +10,29 @@
     "tasks"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/blickwerk/n8n-nodes-microsoft-planner",
+  "homepage": "https://github.com/united-workspace/n8n-nodes-microsoft-planner",
   "author": {
-    "name": "Blickwerk Media UG",
-    "email": "info@blickwerk.media"
+    "name": "United Workspace GmbH",
+    "email": "hello@united-workspace.de",
+    "url": "https://united-workspace.de"
   },
+  "contributes": [
+    {
+      "name": "Blickwerk Media UG",
+      "email": "info@blickwerk.media"
+    }
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/blickwerk/n8n-nodes-microsoft-planner.git"
+    "url": "https://github.com/united-workspace/n8n-nodes-microsoft-planner.git"
   },
   "main": "index.js",
   "scripts": {
     "build": "tsc && gulp build:icons",
     "dev": "tsc --watch",
     "format": "prettier nodes credentials --write",
-    "lint": "eslint nodes credentials package.json",
-    "lintfix": "eslint nodes credentials package.json --fix",
+    "lint": "eslint nodes credentials package.json --ext .ts",
+    "lintfix": "eslint nodes credentials package.json --ext .ts --fix",
     "prepublishOnly": "npm run build"
   },
   "files": [
@@ -48,9 +55,6 @@
     "n8n-workflow": "^1.0.0",
     "prettier": "^2.8.8",
     "typescript": "^5.0.4"
-  },
-  "dependencies": {
-    "n8n-core": "^1.0.0"
   },
   "peerDependencies": {
     "n8n-workflow": "^1.0.0"

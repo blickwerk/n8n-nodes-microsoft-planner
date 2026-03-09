@@ -9,6 +9,7 @@ export class MicrosoftPlannerOAuth2Api implements ICredentialType {
 	name = 'microsoftPlannerOAuth2Api';
 	extends = ['oAuth2Api'];
 	displayName = 'Microsoft Planner OAuth2 API';
+	// eslint-disable-next-line n8n-nodes-base/cred-class-field-documentation-url-miscased
 	documentationUrl = 'https://docs.microsoft.com/en-us/graph/auth-v2-user';
 	properties: INodeProperties[] = [
 		{
@@ -20,14 +21,14 @@ export class MicrosoftPlannerOAuth2Api implements ICredentialType {
 		{
 			displayName: 'Authorization URL',
 			name: 'authUrl',
-			type: 'hidden',
+			type: 'string',
 			default: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
 			required: true,
 		},
 		{
 			displayName: 'Access Token URL',
 			name: 'accessTokenUrl',
-			type: 'hidden',
+			type: 'string',
 			default: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
 			required: true,
 		},

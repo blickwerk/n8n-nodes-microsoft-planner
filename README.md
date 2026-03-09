@@ -14,7 +14,7 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 1. Go to **Settings > Community Nodes** in your n8n instance
 2. Select **Install**
-3. Enter `@blickwerk/n8n-nodes-microsoft-planner` in **Enter npm package name**
+3. Enter `@united-workspace/n8n-nodes-microsoft-planner` in **Enter npm package name**
 4. Agree to the [risks](https://docs.n8n.io/integrations/community-nodes/risks/) of using community nodes
 5. Select **Install**
 
@@ -25,7 +25,7 @@ After installing the node, you can use it like any other node in your workflows.
 To install manually:
 
 ```bash
-npm install @blickwerk/n8n-nodes-microsoft-planner
+npm install @united-workspace/n8n-nodes-microsoft-planner
 ```
 
 ## Prerequisites
@@ -35,7 +35,7 @@ You need to have:
 - A Microsoft Planner plan created
 - Azure AD App Registration with the following API permissions:
   - `Tasks.ReadWrite` - Read and write tasks
-  - `Group.ReadWrite.All` - Read and write all groups (required for Planner)
+  - `Group.ReadWrite.All` - Read and write all groups (required for Planner and comments)
   - `User.Read.All` - Read all users (required for user assignment by email)
 
 ## Setting up Azure AD App
@@ -56,11 +56,11 @@ You need to have:
 4. Select **Delegated permissions**
 5. Add the following permissions:
    - `Tasks.ReadWrite` - Read and write tasks
-   - `Group.ReadWrite.All` - Read and write all groups (required for Planner)
+   - `Group.ReadWrite.All` - Read and write all groups (required for Planner and comments)
    - `User.Read.All` - Read all users' basic profiles (required for user assignment)
 6. Click **Grant admin consent**
 
-**Note**: The `User.Read.All` permission is required if you want to assign tasks to users by email address.
+**Note**: The `User.Read.All` permission is required if you want to assign tasks to users by email address. The `Group.ReadWrite.All` permission is required for both Planner operations and creating/reading comments.
 
 ### Create Client Secret
 
@@ -89,18 +89,41 @@ Configure the Microsoft Planner OAuth2 API credentials in n8n:
 - **Resource Locator UI**: Choose between "From List" (dropdown) or "By ID" (manual input) for Buckets
 - **User Assignment**: Assign tasks to users by email address
 - **Priority Management**: Easy-to-use priority dropdown (Urgent, Important, Medium, Low)
-- **Full CRUD Operations**: Create, Read, Update, and Delete tasks
+- **Comprehensive Task Support**: Full support for Task details including Checklist items and Attachments
+- **Full CRUD Support**: Manage Tasks, Plans, and Buckets
+- **Comment Support**: Create and retrieve comments on tasks
 
 ## Operations
 
 ### Task
 
-- **Create** - Create a new task
-- **Get** - Get a task by ID
+- **Create** - Create a new task (supports Checklist and Attachments)
+- **Get** - Get a task by ID (optionally include details)
 - **Get Many** - Get multiple tasks from a plan or bucket
-- **Update** - Update an existing task
+- **Update** - Update an existing task (supports Checklist and Attachments)
 - **Delete** - Delete a task
 - **Get Files** - Get all files attached to a task
+
+### Plan
+
+- **Create** - Create a new plan in a group
+- **Get** - Get a plan by ID (optionally include details)
+- **Get Many** - Get all plans (My Plans or Group Plans)
+- **Update** - Update a plan (supports Title, Category Labels, and Sharing)
+- **Delete** - Delete a plan
+
+### Bucket
+
+- **Create** - Create a new bucket in a plan
+- **Get** - Get a bucket by ID
+- **Get Many** - Get all buckets in a plan
+- **Update** - Update a bucket title and order
+- **Delete** - Delete a bucket
+
+### Comment
+
+- **Create** - Create a new comment on a task
+- **Get Many** - Get all comments from a task
 
 ## Usage
 
@@ -122,6 +145,9 @@ Optional fields:
 - **Due Date Time**: When the task should be completed
 - **Start Date Time**: When work on the task should begin
 - **Percent Complete**: Task completion percentage (0-100)
+- **Checklist**: Add multiple checklist items with titles and checked status
+- **Attachments**: Add external references/attachments with URLs, aliases, and types (Word, Excel, etc.)
+- **Description**: Detailed task description (stored in task details)
 
 ### Getting Tasks
 
@@ -143,10 +169,13 @@ To update a task:
 - Description
 - Priority (via dropdown)
 - Assigned users (via email list)
-- Due Date Time
-- Start Date Time
-- Percent Complete
-- Move to different bucket
+- **Due Date Time**
+- **Start Date Time**
+- **Percent Complete**
+- **Move to different bucket**
+- **Checklist**: Add new items or update existing ones (supports "Replace All" mode)
+- **Attachments**: Add new references (supports "Replace All" mode)
+- **Description**: Update the task description
 
 ### Getting Files from a Task
 
@@ -162,6 +191,62 @@ To get all files attached to a task:
      - **previewPriority**: Priority for preview display
      - **lastModifiedDateTime**: When the file reference was last modified
      - **lastModifiedBy**: Who last modified the reference
+
+### Creating a Comment
+
+To create a comment on a task:
+1. Select **Comment** as the resource
+2. Choose **Create** operation
+3. Enter the **Task ID** manually
+4. Enter the **Content** of the comment
+5. Optionally select **Content Type**:
+   - **Text** (default): Plain text that will be wrapped in HTML
+   - **HTML**: Custom HTML content
+
+The comment will be created as a conversation thread in the Microsoft 365 Group associated with the plan. If the task doesn't have a conversation thread yet, one will be created automatically.
+
+### Getting Comments from a Task
+
+To get all comments from a task:
+1. Select **Comment** as the resource
+2. Choose **Get Many** operation
+3. Enter the **Task ID** manually
+4. The operation returns:
+   - **taskId**: The task ID
+   - **commentCount**: Number of comments
+   - **comments**: Array of comment objects with:
+     - **id**: Comment ID
+     - **content**: Comment body (HTML)
+     - **from**: Author information
+     - **createdDateTime**: When the comment was created
+     - **lastModifiedDateTime**: When the comment was last modified
+
+**Note**: Once a comment is posted in Planner, it cannot be deleted or edited via the Microsoft Graph API or the Planner UI (for Basic plans). This is a limitation of the Microsoft 365 Groups conversation system that Planner uses.
+
+### Working with Plans
+
+The **Plan** resource allows you to manage Microsoft Planner plans:
+
+- **Create**: Requires an **Owner Group** (selected from dropdown or entered as ID) and a **Title**.
+- **Get Many**:
+  - **My Plans**: Lists plans the authenticated user is a member of.
+  - **Group Plans**: Requires a **Group ID** to list plans owned by that specific group.
+- **Get**: Retrieve full plan metadata. Enable **Include Details** to get category descriptions (labels) and other metadata.
+- **Update**:
+  - Change the plan **Title**.
+  - **Category Descriptions**: Update the labels for the 25 color-coded categories (Category 1-25).
+  - **Shared With**: Update plan members using a JSON mapping of user IDs.
+- **Delete**: Permanently removes the plan.
+
+### Working with Buckets
+
+The **Bucket** resource manages the columns or categories within a plan:
+
+- **Create**: Requires a **Plan ID** and a **Name**.
+  - **Upsert**: When enabled, the node will check if a bucket with the same name already exists in the plan and return that instead of creating a duplicate.
+- **Get Many**: Lists all buckets within a specific **Plan ID**.
+- **Update**: Change the bucket **Name** and its **Order Hint** (controlling the position in the UI).
+- **Delete**: Removes the bucket from the plan.
 
 ### How to Find Plan IDs
 
@@ -197,6 +282,60 @@ Tested with n8n version 1.0.0 and above.
 - [Microsoft Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
 
 ## Version History
+
+### 1.5.5
+- **Bug Fix: $select Duplication**
+  - Fixed an issue where the `$select` query parameter was sent twice during pagination, causing "Query option '$select' was specified more than once" error.
+
+
+### 1.5.4
+- **New Feature: $select Support**
+  - Added "Select Properties" field to "Get Many" operations for Tasks, Plans, Buckets, and Comments.
+- **Improved Task Assignments**
+  - Fixed silent failures for task assignments.
+  - Added robust user lookup (ID, Email, UPN) and error reporting for missing users.
+  - Added support for Array inputs (expressions) in the "Assigned To" field.
+
+
+### 1.5.3
+- **UI Improvements for Attachments and Checklists**
+  - Refactored to use a grouped UI pattern for better usability
+  - Replaced separate fields with a unified structure using `fixedCollection`
+- **Updated Logic for Updates**
+  - Replaced "Replace All" toggle with a clearer **Operation Mode** dropdown (Append vs Replace)
+  - Renamed "Mode" to "Input Mode" for better clarity between Manual and JSON inputs
+  - Fixed logic for replacing items with matching IDs during updates
+
+
+### 1.5.2
+- **Maintenance release**
+- Removed runtime dependency on `n8n-core` to comply with n8n community node requirements
+- No functional changes to node behavior
+
+### 1.5.1
+- **Maintenance release**
+- Replaced deprecated `requestOAuth2` helper with `httpRequestWithAuthentication` in Microsoft Planner API requests
+- Removed `console` logging from the Microsoft Planner node and helper to satisfy n8n community package scan requirements
+
+### 1.5.0
+- **Initial release under @united-workspace scope**
+- **Added Comment Support**
+  - Create and retrieve comments on Planner tasks
+  - Automatic conversation thread management
+  - Support for both HTML and plain text comments
+- **Enhanced Task Details**
+  - **Checklist Support**: Full support for adding and managing checklist items
+  - **Attachments (References)**: Support for adding external URLs and files to tasks
+  - **Replace All Options**: New toggles to replace existing checklists or attachments entirely
+- **Plan Resource Support**
+  - CRUD operations for Plans
+  - Manage Category Labels (1-25)
+  - Manage Plan members (Shared With)
+- **Bucket Resource Support**
+  - CRUD operations for Buckets
+  - Manage bucket names and positioning (Order Hint)
+- **Robust Encoding**: Improved handling of special characters in attachment URLs
+- **Internal Improvements**: Comprehensive build audit, improved error handling and data fetch reliability
 
 ### 1.4.0
 - **Updated branding**
@@ -307,18 +446,16 @@ Tested with n8n version 1.0.0 and above.
 
 ## Author
 
-Developed by **Blickwerk Media UG**
+Managed by **United Workspace GmbH**
 
-### About Blickwerk Media
+## Credits
 
-We're a digital agency based in Germany, building automation, design, and web solutions for clients across industries.
+This node was originally developed by [**Blickwerk Media UG**](https://github.com/blickwerk/n8n-nodes-microsoft-planner). We are grateful for their excellent work and contributions to the n8n community. 
 
-Our focus is on efficient workflows, strong brand experiences, and open-source contributions that make digital tools more connected.
+This version is a fork managed and actively developed by **United Workspace GmbH** to ensure continued support and new features for the n8n community.
 
-- **Web**: [blickwerk.media](https://blickwerk.media)
-- **LinkedIn**: [linkedin.com/company/blickwerkmedia](https://linkedin.com/company/blickwerkmedia)
-- **Instagram**: [instagram.com/blickwerk.media](https://instagram.com/blickwerk.media)
+**Web**: [united-workspace.de](https://united-workspace.de)
 
 ## Support
 
-For issues, questions, or contributions, please visit the [GitHub repository](https://github.com/blickwerk/n8n-nodes-microsoft-planner).
+For issues, questions, or contributions, please visit the [GitHub repository](https://github.com/united-workspace/n8n-nodes-microsoft-planner).

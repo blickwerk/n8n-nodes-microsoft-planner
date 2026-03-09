@@ -1,5 +1,8 @@
 import { INodeProperties } from 'n8n-workflow';
 
+// ----------------------------------
+//         Task operations
+// ----------------------------------
 export const taskOperations: INodeProperties[] = [
 	{
 		displayName: 'Operation',
@@ -53,6 +56,9 @@ export const taskOperations: INodeProperties[] = [
 	},
 ];
 
+// ----------------------------------
+//         Task fields
+// ----------------------------------
 export const taskFields: INodeProperties[] = [
 	// ----------------------------------
 	//         task:create
@@ -131,6 +137,14 @@ export const taskFields: INodeProperties[] = [
 		},
 		options: [
 			{
+				displayName: 'Assigned To (User IDs)',
+				name: 'assignments',
+				type: 'string',
+				default: '',
+				placeholder: 'user1@domain.com, user2@domain.com',
+				description: 'Comma-separated list of user emails or IDs to assign the task to',
+			},
+			{
 				displayName: 'Description',
 				name: 'description',
 				type: 'string',
@@ -139,6 +153,20 @@ export const taskFields: INodeProperties[] = [
 				},
 				default: '',
 				description: 'Description of the task',
+			},
+			{
+				displayName: 'Due Date Time',
+				name: 'dueDateTime',
+				type: 'dateTime',
+				default: '',
+				description: 'Due date and time for the task',
+			},
+			{
+				displayName: 'Percent Complete',
+				name: 'percentComplete',
+				type: 'number',
+				default: 0,
+				description: 'Percentage of task completion (0-100)',
 			},
 			{
 				displayName: 'Priority',
@@ -166,21 +194,6 @@ export const taskFields: INodeProperties[] = [
 				description: 'Priority of the task',
 			},
 			{
-				displayName: 'Assigned To (User IDs)',
-				name: 'assignments',
-				type: 'string',
-				default: '',
-				placeholder: 'user1@domain.com, user2@domain.com',
-				description: 'Comma-separated list of user emails or IDs to assign the task to',
-			},
-			{
-				displayName: 'Due Date Time',
-				name: 'dueDateTime',
-				type: 'dateTime',
-				default: '',
-				description: 'Due date and time for the task',
-			},
-			{
 				displayName: 'Start Date Time',
 				name: 'startDateTime',
 				type: 'dateTime',
@@ -188,17 +201,217 @@ export const taskFields: INodeProperties[] = [
 				description: 'Start date and time for the task',
 			},
 			{
-				displayName: 'Percent Complete',
-				name: 'percentComplete',
-				type: 'number',
-				default: 0,
-				description: 'Percentage of task completion (0-100)',
+				displayName: 'Attachments',
+				name: 'attachmentsUi',
+				placeholder: 'Add Attachments',
+				type: 'fixedCollection',
+				typeOptions: {
+					multipleValues: false,
+				},
+				default: {
+					attachments: {},
+				},
+				options: [
+					{
+						displayName: 'Attachments',
+						name: 'attachments',
+						values: [
+							{
+								displayName: 'Input Mode',
+								name: 'mode',
+								type: 'options',
+								options: [
+									{
+										name: 'Manual',
+										value: 'manual',
+									},
+									{
+										name: 'JSON',
+										value: 'json',
+									},
+								],
+								default: 'manual',
+								description: 'Choose how to provide attachments',
+							},
+							{
+								displayName: 'Items',
+								name: 'items',
+								type: 'fixedCollection',
+								default: {},
+								placeholder: 'Add Attachment',
+								displayOptions: {
+									show: {
+										mode: ['manual'],
+									},
+								},
+								typeOptions: {
+									multipleValues: true,
+								},
+								options: [
+									{
+										name: 'reference',
+										displayName: 'Attachment',
+										values: [
+											{
+												displayName: 'URL',
+												name: 'url',
+												type: 'string',
+												default: '',
+												required: true,
+												description: 'The URL of the attachment',
+											},
+											{
+												displayName: 'Alias',
+												name: 'alias',
+												type: 'string',
+												default: '',
+												description: 'A friendly name for the attachment',
+											},
+											{
+												displayName: 'Type',
+												name: 'type',
+												type: 'options',
+												options: [
+													{
+														name: 'Excel',
+														value: 'Excel',
+													},
+													{
+														name: 'Other',
+														value: 'Other',
+													},
+													{
+														name: 'PowerPoint',
+														value: 'PowerPoint',
+													},
+													{
+														name: 'Word',
+														value: 'Word',
+													},
+												],
+												default: 'Other',
+											},
+										],
+									},
+								],
+							},
+							{
+								displayName: 'JSON',
+								name: 'json',
+								type: 'string',
+								default: '',
+								placeholder: '[{"url": "https://example.com", "alias": "Example", "type": "Other"}]',
+								displayOptions: {
+									show: {
+										mode: ['json'],
+									},
+								},
+								description: 'Add attachments as a JSON array of objects with url, alias (optional), and type (optional) keys',
+							},
+						],
+					},
+				],
+				description: 'Add attachments to the task',
+			},
+			{
+				displayName: 'Checklist',
+				name: 'checklistUi',
+				placeholder: 'Add Checklist',
+				type: 'fixedCollection',
+				typeOptions: {
+					multipleValues: false,
+				},
+				default: {
+					checklist: {},
+				},
+				options: [
+					{
+						displayName: 'Checklist',
+						name: 'checklist',
+						values: [
+							{
+								displayName: 'Input Mode',
+								name: 'mode',
+								type: 'options',
+								options: [
+									{
+										name: 'Manual',
+										value: 'manual',
+									},
+									{
+										name: 'JSON',
+										value: 'json',
+									},
+								],
+								default: 'manual',
+								description: 'Choose how to provide checklist items',
+							},
+							{
+								displayName: 'Items',
+								name: 'items',
+								type: 'fixedCollection',
+								default: {},
+								placeholder: 'Add Checklist Item',
+								displayOptions: {
+									show: {
+										mode: ['manual'],
+									},
+								},
+								typeOptions: {
+									multipleValues: true,
+								},
+								options: [
+									{
+										name: 'item',
+										displayName: 'Checklist Item',
+										values: [
+											{
+												displayName: 'ID',
+												name: 'id',
+												type: 'string',
+												default: '',
+												description: 'ID of the checklist item. Leave empty to generate a new ID.',
+											},
+											{
+												displayName: 'Title',
+												name: 'title',
+												type: 'string',
+												default: '',
+												required: true,
+												description: 'The title of the checklist item',
+											},
+											{
+												displayName: 'Is Checked',
+												name: 'isChecked',
+												type: 'boolean',
+												default: false,
+												description: 'Whether the item is checked',
+											},
+										],
+									},
+								],
+							},
+							{
+								displayName: 'JSON',
+								name: 'json',
+								type: 'string',
+								default: '',
+								placeholder: '[{"title": "My Item", "isChecked": false}]',
+								displayOptions: {
+									show: {
+										mode: ['json'],
+									},
+								},
+								description: 'Add checklist items as a JSON array of objects with title and isChecked (optional) keys',
+							},
+						],
+					},
+				],
+				description: 'Add checklist items to the task',
 			},
 		],
 	},
 
-	// ----------------------------------
-	//         task:get
 	// ----------------------------------
 	{
 		displayName: 'Task',
@@ -248,37 +461,6 @@ export const taskFields: INodeProperties[] = [
 	// ----------------------------------
 	//         task:getAll
 	// ----------------------------------
-	{
-		displayName: 'Return All',
-		name: 'returnAll',
-		type: 'boolean',
-		displayOptions: {
-			show: {
-				resource: ['task'],
-				operation: ['getAll'],
-			},
-		},
-		default: false,
-		description: 'Whether to return all results or only up to a given limit',
-	},
-	{
-		displayName: 'Limit',
-		name: 'limit',
-		type: 'number',
-		displayOptions: {
-			show: {
-				resource: ['task'],
-				operation: ['getAll'],
-				returnAll: [false],
-			},
-		},
-		typeOptions: {
-			minValue: 1,
-			maxValue: 500,
-		},
-		default: 100,
-		description: 'Max number of results to return',
-	},
 	{
 		displayName: 'Filter By',
 		name: 'filterBy',
@@ -350,6 +532,28 @@ export const taskFields: INodeProperties[] = [
 			},
 		],
 	},
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['task'],
+				operation: ['getAll'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Select Properties',
+				name: 'select',
+				type: 'string',
+				default: '',
+				description: 'Comma-separated list of properties to specify which fields to return (e.g. id,title,percentComplete)',
+			},
+		],
+	},
 
 	// ----------------------------------
 	//         task:update
@@ -368,11 +572,19 @@ export const taskFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				displayName: 'Title',
-				name: 'title',
+				displayName: 'Assigned To (User IDs)',
+				name: 'assignments',
 				type: 'string',
 				default: '',
-				description: 'Title of the task',
+				placeholder: 'user1@domain.com, user2@domain.com',
+				description: 'Comma-separated list of user emails or IDs to assign the task to',
+			},
+			{
+				displayName: 'Bucket ID',
+				name: 'bucketId',
+				type: 'string',
+				default: '',
+				description: 'Move task to a different bucket',
 			},
 			{
 				displayName: 'Description',
@@ -383,6 +595,20 @@ export const taskFields: INodeProperties[] = [
 				},
 				default: '',
 				description: 'Description of the task',
+			},
+			{
+				displayName: 'Due Date Time',
+				name: 'dueDateTime',
+				type: 'dateTime',
+				default: '',
+				description: 'Due date and time for the task',
+			},
+			{
+				displayName: 'Percent Complete',
+				name: 'percentComplete',
+				type: 'number',
+				default: 0,
+				description: 'Percentage of task completion (0-100)',
 			},
 			{
 				displayName: 'Priority',
@@ -410,21 +636,6 @@ export const taskFields: INodeProperties[] = [
 				description: 'Priority of the task',
 			},
 			{
-				displayName: 'Assigned To (User IDs)',
-				name: 'assignments',
-				type: 'string',
-				default: '',
-				placeholder: 'user1@domain.com, user2@domain.com',
-				description: 'Comma-separated list of user emails or IDs to assign the task to',
-			},
-			{
-				displayName: 'Due Date Time',
-				name: 'dueDateTime',
-				type: 'dateTime',
-				default: '',
-				description: 'Due date and time for the task',
-			},
-			{
 				displayName: 'Start Date Time',
 				name: 'startDateTime',
 				type: 'dateTime',
@@ -432,18 +643,258 @@ export const taskFields: INodeProperties[] = [
 				description: 'Start date and time for the task',
 			},
 			{
-				displayName: 'Percent Complete',
-				name: 'percentComplete',
-				type: 'number',
-				default: 0,
-				description: 'Percentage of task completion (0-100)',
-			},
-			{
-				displayName: 'Bucket ID',
-				name: 'bucketId',
+				displayName: 'Title',
+				name: 'title',
 				type: 'string',
 				default: '',
-				description: 'Move task to a different bucket',
+				description: 'Title of the task',
+			},
+			{
+				displayName: 'Attachments',
+				name: 'attachmentsUi',
+				placeholder: 'Add Attachments',
+				type: 'fixedCollection',
+				typeOptions: {
+					multipleValues: false,
+				},
+				default: {
+					attachments: {},
+				},
+				options: [
+					{
+						displayName: 'Attachments',
+						name: 'attachments',
+						values: [
+							{
+								displayName: 'Input Mode',
+								name: 'mode',
+								type: 'options',
+								options: [
+									{
+										name: 'Manual',
+										value: 'manual',
+									},
+									{
+										name: 'JSON',
+										value: 'json',
+									},
+								],
+								default: 'manual',
+								description: 'Choose how to provide attachments',
+							},
+							{
+								displayName: 'Items',
+								name: 'items',
+								type: 'fixedCollection',
+								default: {},
+								placeholder: 'Add Attachment',
+								displayOptions: {
+									show: {
+										mode: ['manual'],
+									},
+								},
+								typeOptions: {
+									multipleValues: true,
+								},
+								options: [
+									{
+										name: 'reference',
+										displayName: 'Attachment',
+										values: [
+											{
+												displayName: 'URL',
+												name: 'url',
+												type: 'string',
+												default: '',
+												required: true,
+												description: 'The URL of the attachment',
+											},
+											{
+												displayName: 'Alias',
+												name: 'alias',
+												type: 'string',
+												default: '',
+												description: 'A friendly name for the attachment',
+											},
+											{
+												displayName: 'Type',
+												name: 'type',
+												type: 'options',
+												options: [
+													{
+														name: 'Excel',
+														value: 'Excel',
+													},
+													{
+														name: 'Other',
+														value: 'Other',
+													},
+													{
+														name: 'PowerPoint',
+														value: 'PowerPoint',
+													},
+													{
+														name: 'Word',
+														value: 'Word',
+													},
+												],
+												default: 'Other',
+											},
+										],
+									},
+								],
+							},
+							{
+								displayName: 'JSON',
+								name: 'json',
+								type: 'string',
+								default: '',
+								placeholder: '[{"url": "https://example.com", "alias": "Example", "type": "Other"}]',
+								displayOptions: {
+									show: {
+										mode: ['json'],
+									},
+								},
+								description: 'Add attachments as a JSON array of objects with url, alias (optional), and type (optional) keys',
+							},
+							{
+								displayName: 'Operation Mode',
+								name: 'operationMode',
+								type: 'options',
+								options: [
+									{
+										name: 'Append',
+										value: 'append',
+										description: 'Appends the new given attachment items to the existing ones, potentially updating existing ones with matching ids',
+									},
+									{
+										name: 'Replace',
+										value: 'replace',
+										description: 'Sets the given attachment items and replaces potentially existing ones',
+									},
+								],
+								default: 'append',
+								description: 'Choose how to update the attachments',
+							},
+						],
+					},
+				],
+				description: 'Add attachments to the task',
+			},
+			{
+				displayName: 'Checklist',
+				name: 'checklistUi',
+				placeholder: 'Add Checklist',
+				type: 'fixedCollection',
+				typeOptions: {
+					multipleValues: false,
+				},
+				default: {
+					checklist: {},
+				},
+				options: [
+					{
+						displayName: 'Checklist',
+						name: 'checklist',
+						values: [
+							{
+								displayName: 'Input Mode',
+								name: 'mode',
+								type: 'options',
+								options: [
+									{
+										name: 'Manual',
+										value: 'manual',
+									},
+									{
+										name: 'JSON',
+										value: 'json',
+									},
+								],
+								default: 'manual',
+								description: 'Choose how to provide checklist items',
+							},
+							{
+								displayName: 'Items',
+								name: 'items',
+								type: 'fixedCollection',
+								default: {},
+								placeholder: 'Add Checklist Item',
+								displayOptions: {
+									show: {
+										mode: ['manual'],
+									},
+								},
+								typeOptions: {
+									multipleValues: true,
+								},
+								options: [
+									{
+										name: 'item',
+										displayName: 'Checklist Item',
+										values: [
+											{
+												displayName: 'ID',
+												name: 'id',
+												type: 'string',
+												default: '',
+												description: 'ID of the checklist item. Leave empty to generate a new ID.',
+											},
+											{
+												displayName: 'Title',
+												name: 'title',
+												type: 'string',
+												default: '',
+												required: true,
+												description: 'The title of the checklist item',
+											},
+											{
+												displayName: 'Is Checked',
+												name: 'isChecked',
+												type: 'boolean',
+												default: false,
+												description: 'Whether the item is checked',
+											},
+										],
+									},
+								],
+							},
+							{
+								displayName: 'JSON',
+								name: 'json',
+								type: 'string',
+								default: '',
+								placeholder: '[{"title": "My Item", "isChecked": false}]',
+								displayOptions: {
+									show: {
+										mode: ['json'],
+									},
+								},
+								description: 'Add checklist items as a JSON array of objects with title and isChecked (optional) keys',
+							},
+							{
+								displayName: 'Operation Mode',
+								name: 'operationMode',
+								type: 'options',
+								options: [
+									{
+										name: 'Append',
+										value: 'append',
+										description: 'Appends the new given checklist items to the existing ones, potentially updating existing ones with matching ids',
+									},
+									{
+										name: 'Replace',
+										value: 'replace',
+										description: 'Sets the given checklist items and replaces potentially existing ones',
+									},
+								],
+								default: 'append',
+								description: 'Choose how to update the checklist',
+							},
+						],
+					},
+				],
+				description: 'Add checklist items to the task',
 			},
 		],
 	},

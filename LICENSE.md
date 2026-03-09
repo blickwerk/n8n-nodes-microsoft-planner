@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2025 Blickwerk Media UG
+Copyright (c) 2026 United Workspace GmbH
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

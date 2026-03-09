@@ -6,6 +6,7 @@ import {
 	IHttpRequestOptions,
 	ILoadOptionsFunctions,
 	NodeApiError,
+	NodeOperationError,
 } from 'n8n-workflow';
 
 export async function microsoftApiRequest(
@@ -37,7 +38,11 @@ export async function microsoftApiRequest(
 			delete options.body;
 		}
 
-		return await this.helpers.requestOAuth2.call(this, 'microsoftPlannerOAuth2Api', options);
+		return await this.helpers.httpRequestWithAuthentication.call(
+			this,
+			'microsoftPlannerOAuth2Api',
+			options,
+		);
 	} catch (error) {
 		throw new NodeApiError(this.getNode(), error as any);
 	}
@@ -57,7 +62,8 @@ export async function microsoftApiRequestAllItems(
 	let uri: string | undefined;
 
 	do {
-		responseData = await microsoftApiRequest.call(this, method, endpoint, body, query, uri);
+		const activeQuery = uri ? {} : query;
+		responseData = await microsoftApiRequest.call(this, method, endpoint, body, activeQuery, uri);
 		uri = responseData['@odata.nextLink'];
 		returnData.push.apply(returnData, responseData[propertyName] as IDataObject[]);
 	} while (responseData['@odata.nextLink'] !== undefined);
@@ -94,26 +100,52 @@ export function formatDateTime(dateTime: string | undefined): string | undefined
 export async function getUserIdByEmail(
 	this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions,
 	email: string,
-): Promise<string | null> {
+): Promise<string> {
+	// 1. Check if it's already a UUID
+	if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(email)) {
+		return email;
+	}
+
 	try {
+		// 2. Try direct lookup (fastest)
 		const response = await microsoftApiRequest.call(
 			this,
 			'GET',
 			`/users/${encodeURIComponent(email)}`,
+			{},
+			{ $select: 'id' }
 		);
 		return response.id;
 	} catch (error: any) {
-		// Log error for debugging
-		console.error(`Failed to get user ID for email ${email}:`, error.message || error);
-		return null;
+		// 3. Try filter lookup (handling UPN mismatch or restricted visibility)
+		try {
+			const users = await microsoftApiRequestAllItems.call(
+				this,
+				'value',
+				'GET',
+				'/users',
+				{},
+				{ $filter: `mail eq '${email}' or userPrincipalName eq '${email}'`, $select: 'id' }
+			);
+			if (users && users.length > 0) {
+				return users[0].id;
+			}
+		} catch (filterError) {
+			// Ignore filter error, throw original or new error
+		}
+
+		throw new NodeOperationError(this.getNode(), `Could not find user with email/ID: ${email}`);
 	}
 }
 
-export function parseAssignments(assignmentsString: string): string[] {
-	if (!assignmentsString || assignmentsString.trim() === '') {
+export function parseAssignments(assignments: string | string[]): string[] {
+	if (Array.isArray(assignments)) {
+		return assignments;
+	}
+	if (!assignments || assignments.trim() === '') {
 		return [];
 	}
-	return assignmentsString
+	return assignments
 		.split(',')
 		.map((email) => email.trim())
 		.filter((email) => email.length > 0);
@@ -129,3 +161,55 @@ export function createAssignmentsObject(userIds: string[]): IDataObject {
 	}
 	return assignments;
 }
+
+/**
+ * Encodes a URL for use as a key in plannerExternalReferences.
+ * OData requires keys in open types to be free of certain special characters like '.',
+ * which must be encoded.
+ */
+export function encodeReferenceKey(url: string): string {
+	// Use encodeURI to handle spaces and % but preserve URI structure (/, ?, &, =)
+	let encoded = encodeURI(url);
+
+	// Manually replace OData forbidden characters that encodeURI preserves
+	// Forbidden: . : % @ #
+	// encodeURI handles % (encodes to %25 unless it's a valid escape sequence)
+	encoded = encoded
+		.replace(/\./g, '%2E')
+		.replace(/:/g, '%3A')
+		.replace(/@/g, '%40')
+		.replace(/#/g, '%23');
+
+	return encoded;
+}
+
+/**
+ * Generates a GUID/UUID v4.
+ * Useful for creating new ID keys for checklist items.
+ */
+export function generateGuid(): string {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+		const r = (Math.random() * 16) | 0;
+		const v = c === 'x' ? r : (r & 0x3) | 0x8;
+		return v.toString(16);
+	});
+}
+
+/**
+ * Formats comment content for Microsoft Graph API conversation posts.
+ * Wraps plain text in HTML paragraph tags if needed.
+ */
+export function formatCommentContent(content: string, contentType: string = 'text'): IDataObject {
+	// When we wrap text in HTML tags, we need to set contentType to 'html'
+	// Otherwise the tags will be displayed as literal text in Planner
+	const isHtml = contentType === 'html';
+	const formattedContent = isHtml ? content : `<p>${content}</p>`;
+
+	return {
+		body: {
+			contentType: 'html', // Always use 'html' since we're wrapping in tags
+			content: formattedContent,
+		},
+	};
+}
+

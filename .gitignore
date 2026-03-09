@@ -39,3 +39,7 @@ tmp/
 
 # Claude
 .claude/
+# Local/Temp files
+AGENT.md
+swagger extract.txt
+planner-migration/
