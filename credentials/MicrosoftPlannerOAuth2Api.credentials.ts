@@ -1,5 +1,8 @@
 import type { ICredentialTestRequest, ICredentialType, Icon, INodeProperties } from 'n8n-workflow';
 
+// Same pattern as n8n's built-in Microsoft credentials (e.g. Microsoft Azure Monitor)
+const LOGIN_BASE_URL = 'https://login.microsoftonline.com/{{$self["tenantId"]}}/oauth2/v2.0';
+
 export class MicrosoftPlannerOAuth2Api implements ICredentialType {
 	name = 'microsoftPlannerOAuth2Api';
 
@@ -13,9 +16,26 @@ export class MicrosoftPlannerOAuth2Api implements ICredentialType {
 	};
 
 	documentationUrl =
-		'https://github.com/blickwerk/n8n-nodes-microsoft-planner?tab=readme-ov-file#credentials';
+		'https://github.com/blickwerk/n8n-nodes-microsoft-planner?tab=readme-ov-file#setup';
 
 	properties: INodeProperties[] = [
+		{
+			displayName:
+				'Copy the three values from your app registration in Microsoft Entra ID (Overview page and "Certificates & secrets"). Step-by-step guide: <a href="https://github.com/blickwerk/n8n-nodes-microsoft-planner?tab=readme-ov-file#setup" target="_blank">Setup in 4 steps</a>',
+			name: 'setupNotice',
+			type: 'notice',
+			default: '',
+		},
+		{
+			displayName: 'Tenant ID',
+			name: 'tenantId',
+			type: 'string',
+			default: 'common',
+			required: true,
+			placeholder: 'e.g. 72f988bf-86f1-41af-91ab-2d7cd011db47',
+			description:
+				'The "Directory (tenant) ID" from the Overview page of your app registration. Only multi-tenant apps can keep "common".',
+		},
 		{
 			displayName: 'Grant Type',
 			name: 'grantType',
@@ -25,19 +45,15 @@ export class MicrosoftPlannerOAuth2Api implements ICredentialType {
 		{
 			displayName: 'Authorization URL',
 			name: 'authUrl',
-			type: 'string',
-			default: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
-			description:
-				'For single-tenant app registrations, replace "common" with your Directory (tenant) ID',
+			type: 'hidden',
+			default: `=${LOGIN_BASE_URL}/authorize`,
 			required: true,
 		},
 		{
 			displayName: 'Access Token URL',
 			name: 'accessTokenUrl',
-			type: 'string',
-			default: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
-			description:
-				'For single-tenant app registrations, replace "common" with your Directory (tenant) ID',
+			type: 'hidden',
+			default: `=${LOGIN_BASE_URL}/token`,
 			required: true,
 		},
 		{

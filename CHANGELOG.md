@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Older entries are listed in the [README](README.md#version-history).
 
+## 1.6.1
+
+- Credential: new Tenant ID field, login URLs are derived from it (fixes AADSTS50194 for single-tenant apps)
+- README: setup rewritten as 4 steps plus troubleshooting
+- Package: exclude tsconfig.tsbuildinfo, fix repository URL; CI: actions v7
+
 ## 1.6.0
 
 - Migrated to `@n8n/node-cli` (build, lint, dev, release), ESLint 9 flat config, strict mode

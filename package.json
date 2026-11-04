@@ -1,6 +1,6 @@
 {
   "name": "@blickwerk/n8n-nodes-microsoft-planner",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "n8n community node for Microsoft Planner - manage plans, buckets, tasks, checklists, attachments, labels and comments via Microsoft Graph",
   "keywords": [
     "n8n-community-node-package",

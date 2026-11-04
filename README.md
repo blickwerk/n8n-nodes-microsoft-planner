@@ -28,66 +28,67 @@ To install manually:
 npm install @blickwerk/n8n-nodes-microsoft-planner
 ```
 
-## Prerequisites
+## Setup
 
-You need to have:
-- An active Microsoft 365 subscription
-- A Microsoft Planner plan created
-- A Microsoft Entra ID (Azure AD) app registration with the following delegated API permissions:
-  - `User.Read` - Sign in and read the own profile
-  - `User.ReadBasic.All` - Read basic profiles of all users (required to assign tasks by email)
-  - `Tasks.ReadWrite` - Read and write tasks
-  - `Group.ReadWrite.All` - Read and write all groups (required for Planner plans and comments)
+Takes about 5 minutes. You need a Microsoft 365 work or school account. For step 2 you also need an admin (or someone allowed to grant admin consent) - if that's not you, send them steps 1-3.
 
-## Setting up Azure AD App
+### 1. Register an app in Microsoft Entra ID
 
-1. Go to [Azure Portal](https://portal.azure.com/)
-2. Navigate to **Azure Active Directory > App registrations**
-3. Click **New registration**
-4. Give it a name (e.g., "n8n Microsoft Planner Integration")
-5. Select **Accounts in this organizational directory only**
-6. Add redirect URI: `https://your-n8n-instance.com/rest/oauth2-credential/callback`
-7. Click **Register**
+1. In n8n, go to **Credentials → Add credential → Microsoft Planner OAuth2 API** and copy the **OAuth Redirect URL** shown at the top. Leave the dialog open.
+2. Open the [Microsoft Entra admin center → App registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) and click **New registration**.
+3. Fill in:
+   - **Name:** `n8n` (anything works)
+   - **Supported account types:** *Accounts in this organizational directory only*
+   - **Redirect URI:** platform **Web**, paste the OAuth Redirect URL from n8n
+4. Click **Register**. You're now on the app's **Overview** page.
 
-### Configure API Permissions
+### 2. Add permissions
 
-1. Go to **API permissions**
-2. Click **Add a permission**
-3. Select **Microsoft Graph**
-4. Select **Delegated permissions**
-5. Add the following permissions:
-   - `User.Read` - Sign in and read the own profile
-   - `User.ReadBasic.All` - Read basic profiles of all users (required for user assignment by email)
-   - `Tasks.ReadWrite` - Read and write tasks
-   - `Group.ReadWrite.All` - Read and write all groups (required for Planner and comments)
-6. Click **Grant admin consent**
+1. Open **API permissions → Add a permission → Microsoft Graph → Delegated permissions**.
+2. Search and tick these four, then click **Add permissions**:
 
-**Note**: `User.ReadBasic.All` is required if you want to assign tasks to users by email address. `Group.ReadWrite.All` is required for both Planner operations and creating/reading comments.
+   | Permission | Needed for |
+   |---|---|
+   | `User.Read` | Signing in |
+   | `User.ReadBasic.All` | Assigning tasks by email address |
+   | `Tasks.ReadWrite` | Plans, buckets and tasks |
+   | `Group.ReadWrite.All` | Group plans and comments |
 
-> **Upgrading from 1.5.x?** Version 1.6.0 requests the additional scopes `User.Read` and `User.ReadBasic.All`. Add them to your app registration and click **Reconnect** on your existing credential once.
+3. Click **Grant admin consent for &lt;your organization&gt;** and confirm. All four rows should show a green check mark.
 
-### Create Client Secret
+### 3. Create a client secret
 
-1. Go to **Certificates & secrets**
-2. Click **New client secret**
-3. Add a description and select expiration
-4. Copy the **Value** (you won't see it again!)
+1. Open **Certificates & secrets → Client secrets → New client secret**, pick an expiry and click **Add**.
+2. Copy the **Value** right away (it is only shown once). Don't copy the *Secret ID*.
 
-### Get Application Details
+> Set a reminder for the expiry date. When the secret expires, create a new one and paste it into the credential.
 
-- **Client ID**: Found on the app overview page
-- **Client Secret**: The value you copied in the previous step
+### 4. Connect n8n
 
-## Credentials
+Back in the n8n credential dialog, fill in three fields:
 
-Configure the Microsoft Planner OAuth2 API credentials in n8n:
+| n8n field | Where to find it in Entra ID |
+|---|---|
+| **Client ID** | Overview → *Application (client) ID* |
+| **Client Secret** | The *Value* from step 3 |
+| **Tenant ID** | Overview → *Directory (tenant) ID* |
 
-1. In n8n, go to **Credentials > New**
-2. Search for **Microsoft Planner OAuth2 API**
-3. Enter your **Client ID** and **Client Secret**
-4. If your app registration is **single tenant** ("Accounts in this organizational directory only"), replace `common` in the **Authorization URL** and **Access Token URL** with your Directory (tenant) ID, e.g. `https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/authorize`
-5. Click **Connect my account**
-6. Complete the OAuth flow
+Click **Connect my account**, sign in with your Microsoft account and accept. Done - the credential shows *Account connected*.
+
+### Troubleshooting
+
+| Error | Fix |
+|---|---|
+| `AADSTS50194` … *not configured as a multi-tenant application* … */common endpoint* | Enter your **Tenant ID** instead of `common`. If the credential was created with an older version of this node and still shows this error, create a new credential. |
+| `AADSTS50011` … *redirect URI* … *does not match* | The Redirect URI in Entra ID must be exactly the **OAuth Redirect URL** from n8n (watch `http` vs. `https`). Behind a reverse proxy, set n8n's `WEBHOOK_URL` to your public URL. |
+| `AADSTS65001` / *Need admin approval* | Admin consent is missing - repeat step 2.3 or ask your admin. |
+| `AADSTS7000215` … *invalid client secret* | You copied the *Secret ID* instead of the *Value*, or the secret expired. Create a new secret (step 3). |
+| *Could not find user with email/ID* | `User.ReadBasic.All` is missing or was added after connecting: add it, grant consent and click **Reconnect** on the credential. |
+| `403 Forbidden` on comments or group plans | `Group.ReadWrite.All` is missing or not consented. |
+
+### Upgrading from 1.5.x
+
+Existing credentials keep working. Version 1.6 additionally uses `User.Read` and `User.ReadBasic.All`: add both in step 2, grant consent and click **Reconnect** on your credential once.
 
 ## Features
 
@@ -320,6 +321,11 @@ Since May 1 2026, n8n requires community nodes to be published from GitHub Actio
 - [Microsoft Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
 
 ## Version History
+
+### 1.6.1
+- **Simpler login**: the credential now only asks for Client ID, Client Secret and **Tenant ID**. The login URLs are built automatically, so single-tenant app registrations no longer fail with `AADSTS50194`.
+- Setup guide rewritten as 4 short steps, with a troubleshooting table for the common Entra ID errors
+- The package no longer ships the TypeScript build cache; CI uses `actions/checkout` and `actions/setup-node` v7
 
 ### 1.6.0
 - **Migrated to the current n8n community node tooling**
