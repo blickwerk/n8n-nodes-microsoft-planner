@@ -22,7 +22,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/blickwerk/n8n-nodes-microsoft-planner.git"
+    "url": "git+https://github.com/blickwerk/n8n-nodes-microsoft-planner.git"
   },
   "scripts": {
     "build": "n8n-node build",
@@ -35,7 +35,8 @@
     "prepublishOnly": "n8n-node prerelease"
   },
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/*.tsbuildinfo"
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
