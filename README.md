@@ -33,10 +33,11 @@ npm install @blickwerk/n8n-nodes-microsoft-planner
 You need to have:
 - An active Microsoft 365 subscription
 - A Microsoft Planner plan created
-- Azure AD App Registration with the following API permissions:
+- A Microsoft Entra ID (Azure AD) app registration with the following delegated API permissions:
+  - `User.Read` - Sign in and read the own profile
+  - `User.ReadBasic.All` - Read basic profiles of all users (required to assign tasks by email)
   - `Tasks.ReadWrite` - Read and write tasks
-  - `Group.ReadWrite.All` - Read and write all groups (required for Planner and comments)
-  - `User.Read.All` - Read all users (required for user assignment by email)
+  - `Group.ReadWrite.All` - Read and write all groups (required for Planner plans and comments)
 
 ## Setting up Azure AD App
 
@@ -55,12 +56,15 @@ You need to have:
 3. Select **Microsoft Graph**
 4. Select **Delegated permissions**
 5. Add the following permissions:
+   - `User.Read` - Sign in and read the own profile
+   - `User.ReadBasic.All` - Read basic profiles of all users (required for user assignment by email)
    - `Tasks.ReadWrite` - Read and write tasks
    - `Group.ReadWrite.All` - Read and write all groups (required for Planner and comments)
-   - `User.Read.All` - Read all users' basic profiles (required for user assignment)
 6. Click **Grant admin consent**
 
-**Note**: The `User.Read.All` permission is required if you want to assign tasks to users by email address. The `Group.ReadWrite.All` permission is required for both Planner operations and creating/reading comments.
+**Note**: `User.ReadBasic.All` is required if you want to assign tasks to users by email address. `Group.ReadWrite.All` is required for both Planner operations and creating/reading comments.
+
+> **Upgrading from 1.5.x?** Version 1.6.0 requests the additional scopes `User.Read` and `User.ReadBasic.All`. Add them to your app registration and click **Reconnect** on your existing credential once.
 
 ### Create Client Secret
 
@@ -81,8 +85,9 @@ Configure the Microsoft Planner OAuth2 API credentials in n8n:
 1. In n8n, go to **Credentials > New**
 2. Search for **Microsoft Planner OAuth2 API**
 3. Enter your **Client ID** and **Client Secret**
-4. Click **Connect my account**
-5. Complete the OAuth flow
+4. If your app registration is **single tenant** ("Accounts in this organizational directory only"), replace `common` in the **Authorization URL** and **Access Token URL** with your Directory (tenant) ID, e.g. `https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/authorize`
+5. Click **Connect my account**
+6. Complete the OAuth flow
 
 ## Features
 
@@ -90,35 +95,40 @@ Configure the Microsoft Planner OAuth2 API credentials in n8n:
 - **User Assignment**: Assign tasks to users by email address
 - **Priority Management**: Easy-to-use priority dropdown (Urgent, Important, Medium, Low)
 - **Comprehensive Task Support**: Full support for Task details including Checklist items and Attachments
+- **Labels**: Apply and remove Planner labels (category1 - category25), the dropdown shows the label names of your plan
 - **Full CRUD Support**: Manage Tasks, Plans, and Buckets
 - **Comment Support**: Create and retrieve comments on tasks
+- **AI Agent Tool**: The node can be used as a tool by n8n AI agents
+- **Concurrency Handling**: ETag conflicts (HTTP 412) are retried automatically
 
 ## Operations
 
 ### Task
 
-- **Create** - Create a new task (supports Checklist and Attachments)
-- **Get** - Get a task by ID (optionally include details)
-- **Get Many** - Get multiple tasks from a plan or bucket
-- **Update** - Update an existing task (supports Checklist and Attachments)
+- **Create** - Create a new task (supports Checklist, Attachments, Labels, Preview Type, Order Hints)
 - **Delete** - Delete a task
+- **Get** - Get a task by ID (optionally include details)
+- **Get Board Format** - Get the ordering of a task in the Bucket, Progress or Assigned To board view
 - **Get Files** - Get all files attached to a task
+- **Get Many** - Get multiple tasks from a plan, a bucket, the current user ("My Tasks") or another user (optionally with details, optionally excluding completed tasks)
+- **Update** - Update an existing task (supports Checklist, Attachments, Labels, replacing/removing assignees, removing dates)
+- **Update Board Format** - Change the ordering of a task in a board view
 
 ### Plan
 
 - **Create** - Create a new plan in a group
-- **Get** - Get a plan by ID (optionally include details)
-- **Get Many** - Get all plans (My Plans or Group Plans)
-- **Update** - Update a plan (supports Title, Category Labels, and Sharing)
 - **Delete** - Delete a plan
+- **Get** - Get a plan by ID (optionally include details)
+- **Get Many** - Get all plans (My Plans, Group Plans or the plans of a specific user)
+- **Update** - Update a plan (supports Title, Label Names, and Sharing)
 
 ### Bucket
 
-- **Create** - Create a new bucket in a plan
+- **Create** - Create a new bucket in a plan (optionally with order hint, optionally upsert by name)
+- **Delete** - Delete a bucket
 - **Get** - Get a bucket by ID
 - **Get Many** - Get all buckets in a plan
-- **Update** - Update a bucket title and order
-- **Delete** - Delete a bucket
+- **Update** - Update a bucket name and order
 
 ### Comment
 
@@ -141,7 +151,8 @@ Optional fields:
   - Important
   - Medium (default)
   - Low
-- **Assigned To**: Comma-separated list of user emails (e.g., `user1@domain.com, user2@domain.com`)
+- **Assigned To**: Comma-separated list of user emails or IDs (e.g., `user1@domain.com, user2@domain.com`)
+- **Labels**: Labels to apply (the list shows the label names defined in the plan)
 - **Due Date Time**: When the task should be completed
 - **Start Date Time**: When work on the task should begin
 - **Percent Complete**: Task completion percentage (0-100)
@@ -155,10 +166,12 @@ Optional fields:
 - Enter the **Task ID** manually (no dropdown available for single task lookups)
 
 **Get many tasks:**
-- Choose filter type: **Plan** or **Bucket**
-- Enter the **Plan ID**
+- Choose filter type: **Plan**, **Bucket**, **My Tasks** or **User**
+- Enter the **Plan ID** (Plan / Bucket) or the **User** (email or ID)
 - If filtering by Bucket: Select bucket from dropdown or enter Bucket ID manually
-- Set a limit or return all tasks
+- Optional: **Include Details** (description, checklist, attachments for every task), **Exclude Completed Tasks**, **Select Properties**
+
+Microsoft Graph does not support `$top`/`$filter` for Planner, so all tasks of the selected scope are returned (pagination is handled automatically).
 
 ### Updating a Task
 
@@ -173,9 +186,13 @@ To update a task:
 - **Start Date Time**
 - **Percent Complete**
 - **Move to different bucket**
-- **Checklist**: Add new items or update existing ones (supports "Replace All" mode)
-- **Attachments**: Add new references (supports "Replace All" mode)
-- **Description**: Update the task description
+- **Checklist**: Add new items or update existing ones (Operation Mode: Append / Replace), or remove items by ID
+- **Attachments**: Add new references (Operation Mode: Append / Replace), or remove references by URL
+- **Description**: Update the task description (an empty value clears it)
+- **Labels to Add / Labels to Remove**
+- **Assignment Mode**: Append (default) or Replace the assignees; **Remove Assignees** unassigns users
+- **Remove Due Date / Remove Start Date**
+- **Order Hint**, **Assignee Priority**, **Preview Type**, **Conversation Thread ID**
 
 ### Getting Files from a Task
 
@@ -203,7 +220,7 @@ To create a comment on a task:
    - **Text** (default): Plain text that will be wrapped in HTML
    - **HTML**: Custom HTML content
 
-The comment will be created as a conversation thread in the Microsoft 365 Group associated with the plan. If the task doesn't have a conversation thread yet, one will be created automatically.
+The comment will be created as a conversation thread in the Microsoft 365 Group associated with the plan. If the task doesn't have a conversation thread yet (or the linked thread was deleted), one will be created automatically. Plain text is HTML-escaped and line breaks are preserved.
 
 ### Getting Comments from a Task
 
@@ -220,6 +237,7 @@ To get all comments from a task:
      - **from**: Author information
      - **createdDateTime**: When the comment was created
      - **lastModifiedDateTime**: When the comment was last modified
+5. Enable **Split Into Items** to get one output item per comment instead
 
 **Note**: Once a comment is posted in Planner, it cannot be deleted or edited via the Microsoft Graph API or the Planner UI (for Basic plans). This is a limitation of the Microsoft 365 Groups conversation system that Planner uses.
 
@@ -231,10 +249,11 @@ The **Plan** resource allows you to manage Microsoft Planner plans:
 - **Get Many**:
   - **My Plans**: Lists plans the authenticated user is a member of.
   - **Group Plans**: Requires a **Group ID** to list plans owned by that specific group.
+  - **User**: Lists the plans a specific user (email or ID) is a member of.
 - **Get**: Retrieve full plan metadata. Enable **Include Details** to get category descriptions (labels) and other metadata.
 - **Update**:
   - Change the plan **Title**.
-  - **Category Descriptions**: Update the labels for the 25 color-coded categories (Category 1-25).
+  - **Category Descriptions**: Update the names of the 25 color-coded labels (Category 01-25). An empty value removes the name.
   - **Shared With**: Update plan members using a JSON mapping of user IDs.
 - **Delete**: Permanently removes the plan.
 
@@ -273,7 +292,26 @@ For Get/Update/Delete operations, you need to manually enter the Task ID.
 
 ## Compatibility
 
-Tested with n8n version 1.0.0 and above.
+Built and linted with the official n8n community node tooling (`@n8n/node-cli` 0.55, `n8n-workflow` 2.16) for n8n 2.x. Recent n8n 1.x versions that support `NodeConnectionTypes` work as well.
+
+## Development
+
+```bash
+# --ignore-scripts skips the native build of isolated-vm (a dependency of n8n-workflow
+# that is not needed to build nodes and fails on Windows without build tools)
+npm install --ignore-scripts
+
+npm run dev     # starts a local n8n with the node loaded (hot reload)
+npm run lint    # n8n community node lint rules (strict mode)
+npm run build   # compiles to dist/
+```
+
+### Releasing
+
+Since May 1 2026, n8n requires community nodes to be published from GitHub Actions with npm provenance. The workflow in `.github/workflows/publish.yml` publishes the package whenever a version tag (e.g. `1.6.0`) is pushed.
+
+1. One-time: configure npm **Trusted Publishing** for this repository (workflow `publish.yml`) or add an `NPM_TOKEN` repository secret
+2. Run `npm run release` locally. It lints, builds, bumps the version, updates `CHANGELOG.md`, commits, tags and pushes
 
 ## Resources
 
@@ -282,6 +320,36 @@ Tested with n8n version 1.0.0 and above.
 - [Microsoft Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
 
 ## Version History
+
+### 1.6.0
+- **Migrated to the current n8n community node tooling**
+  - `@n8n/node-cli` for build, lint, dev and release, ESLint 9 flat config, strict mode
+  - GitHub Actions workflows for CI and npm publishing with provenance (required by n8n since May 2026)
+  - Node is usable as an AI agent tool; correct item pairing (`pairedItem`) for all operations
+- **New Features**
+  - Task labels (applied categories) on create and update; the label dropdown shows the plan's label names
+  - Get Many Tasks for **My Tasks** and **User**, optional **Include Details** and **Exclude Completed Tasks**
+  - Get Many Plans for a specific **User**
+  - Task **Get Board Format** / **Update Board Format** (Bucket, Progress, Assigned To views)
+  - Task update: Assignment Mode (Append/Replace), Remove Assignees, Remove Due/Start Date, remove checklist items by ID, remove attachments by URL
+  - Task: Order Hint, Assignee Priority, Preview Type and Conversation Thread ID fields
+  - Checklist items: Order Hint; attachments: Preview Priority
+  - Bucket create: Order Hint
+  - Comments: Split Into Items option, pagination for threads with many posts
+  - Search filter for the Bucket and Group dropdowns
+- **Bug Fixes**
+  - Task update priority values were wrong ("Urgent" sent 0, "Important" sent 1, which Planner treats as urgent). Now 1/3/5/9, the same as on create
+  - Replying to an existing comment thread used an invalid endpoint (the conversation ID was taken from the thread). Now uses `/groups/{id}/threads/{id}/reply`
+  - Creating the first comment relied on `threads` in the create-conversation response, which Graph does not return
+  - Plain-text comments were not HTML-escaped (`<`, `&` broke the comment) and lost line breaks
+  - The OAuth scope was missing `User.Read` / `User.ReadBasic.All`, so assigning users by email could fail
+  - Plans are now created with `container` instead of the deprecated `owner` property
+  - Empty Attachments/Checklist sections no longer send an empty PATCH request
+  - The description can now be cleared on update
+  - Dates passed as Luxon DateTime/Date objects (e.g. `{{ $now }}`) were dropped
+  - Email addresses containing `'` broke the user lookup filter
+  - ETag conflicts (HTTP 412) are retried automatically instead of failing the workflow
+  - Errors now reference the failing item
 
 ### 1.5.5
 - **Bug Fix: $select Duplication**

@@ -22,6 +22,12 @@ export const bucketOperations: INodeProperties[] = [
 				action: 'Create a bucket',
 			},
 			{
+				name: 'Delete',
+				value: 'delete',
+				description: 'Delete a bucket',
+				action: 'Delete a bucket',
+			},
+			{
 				name: 'Get',
 				value: 'get',
 				description: 'Get a bucket',
@@ -38,12 +44,6 @@ export const bucketOperations: INodeProperties[] = [
 				value: 'update',
 				description: 'Update a bucket',
 				action: 'Update a bucket',
-			},
-			{
-				name: 'Delete',
-				value: 'delete',
-				description: 'Delete a bucket',
-				action: 'Delete a bucket',
 			},
 		],
 		default: 'getAll',
@@ -101,7 +101,30 @@ export const bucketFields: INodeProperties[] = [
 				operation: ['create'],
 			},
 		},
-		description: 'Whether to return the existing bucket if one with the same name already exists in the plan',
+		description:
+			'Whether to return the existing bucket if one with the same name already exists in the plan',
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['bucket'],
+				operation: ['create'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Order Hint',
+				name: 'orderHint',
+				type: 'string',
+				default: '',
+				description: 'Used to sort buckets in the plan (e.g. " !" to put the bucket first)',
+			},
+		],
 	},
 	{
 		displayName: 'Additional Fields',
@@ -121,7 +144,8 @@ export const bucketFields: INodeProperties[] = [
 				name: 'select',
 				type: 'string',
 				default: '',
-				description: 'Comma-separated list of properties to specify which fields to return (e.g. id,name)',
+				description:
+					'Comma-separated list of properties to specify which fields to return (e.g. name,orderHint). The ID is always returned.',
 			},
 		],
 	},

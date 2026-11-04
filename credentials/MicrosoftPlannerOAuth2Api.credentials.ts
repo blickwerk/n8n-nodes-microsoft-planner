@@ -1,16 +1,20 @@
-import {
-	IAuthenticateGeneric,
-	ICredentialTestRequest,
-	ICredentialType,
-	INodeProperties,
-} from 'n8n-workflow';
+import type { ICredentialTestRequest, ICredentialType, Icon, INodeProperties } from 'n8n-workflow';
 
 export class MicrosoftPlannerOAuth2Api implements ICredentialType {
 	name = 'microsoftPlannerOAuth2Api';
+
 	extends = ['oAuth2Api'];
+
 	displayName = 'Microsoft Planner OAuth2 API';
-	// eslint-disable-next-line n8n-nodes-base/cred-class-field-documentation-url-miscased
-	documentationUrl = 'https://docs.microsoft.com/en-us/graph/auth-v2-user';
+
+	icon: Icon = {
+		light: 'file:../nodes/MicrosoftPlanner/planner.svg',
+		dark: 'file:../nodes/MicrosoftPlanner/planner.svg',
+	};
+
+	documentationUrl =
+		'https://github.com/blickwerk/n8n-nodes-microsoft-planner?tab=readme-ov-file#credentials';
+
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Grant Type',
@@ -23,6 +27,8 @@ export class MicrosoftPlannerOAuth2Api implements ICredentialType {
 			name: 'authUrl',
 			type: 'string',
 			default: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
+			description:
+				'For single-tenant app registrations, replace "common" with your Directory (tenant) ID',
 			required: true,
 		},
 		{
@@ -30,13 +36,16 @@ export class MicrosoftPlannerOAuth2Api implements ICredentialType {
 			name: 'accessTokenUrl',
 			type: 'string',
 			default: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
+			description:
+				'For single-tenant app registrations, replace "common" with your Directory (tenant) ID',
 			required: true,
 		},
 		{
 			displayName: 'Scope',
 			name: 'scope',
 			type: 'hidden',
-			default: 'openid offline_access Tasks.ReadWrite Group.ReadWrite.All',
+			default:
+				'openid offline_access User.Read User.ReadBasic.All Tasks.ReadWrite Group.ReadWrite.All',
 		},
 		{
 			displayName: 'Auth URI Query Parameters',
@@ -50,33 +59,7 @@ export class MicrosoftPlannerOAuth2Api implements ICredentialType {
 			type: 'hidden',
 			default: 'body',
 		},
-		{
-			displayName: 'Client ID',
-			name: 'clientId',
-			type: 'string',
-			default: '',
-			required: true,
-		},
-		{
-			displayName: 'Client Secret',
-			name: 'clientSecret',
-			type: 'string',
-			typeOptions: {
-				password: true,
-			},
-			default: '',
-			required: true,
-		},
 	];
-
-	authenticate: IAuthenticateGeneric = {
-		type: 'generic',
-		properties: {
-			headers: {
-				Authorization: '={{$credentials.tokenType}} {{$credentials.accessToken}}',
-			},
-		},
-	};
 
 	test: ICredentialTestRequest = {
 		request: {
